@@ -1,0 +1,20 @@
+pluginManagement {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'energy-company'
+include 'common'
+include 'customer-service-db-migration'
+
+project(":customer-service-db-migration").projectDir = file("customer/customer-service-db-migration")
+
+include("common", "customer-db-migration")
+project(":common").projectDir = file("../common")
+
+
+
+
