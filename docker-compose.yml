@@ -1,0 +1,20 @@
+services:
+
+  customer_db:
+    image: postgres:16.2
+    restart: always
+    environment:
+      POSTGRES_USER: default
+      POSTGRES_PASSWORD: default
+      POSTGRES_DB: customer-service-db
+    ports:
+      - "5433:5432"
+    networks:
+      - host
+
+networks:
+  host:
+    driver: bridge
+
+volumes:
+  customer_db:

@@ -1,6 +1,10 @@
 plugins {
+    // TODO: Get the version from gradle.properties
     id 'org.springframework.boot' version "3.4.4"
+
+    // TODO: Get the version from gradle.properties
     id 'io.spring.dependency-management' version "1.1.6"
+
     id 'java'
 }
 
@@ -13,9 +17,15 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.liquibase:liquibase-core'
+    implementation 'org.postgresql:postgresql'
+
+    implementation project(':customer-service-db-migration-changelog')
+
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:postgresql'
 }
 
 springBoot {
