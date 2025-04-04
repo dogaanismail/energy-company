@@ -12,6 +12,23 @@ services:
     networks:
       - host
 
+  customer_db_migration:
+    image: customer-service-db-migration-app
+    container_name: customer-service-db-migration-service
+    build:
+      context: ./customer/customer-service-db-migration
+      dockerfile: Dockerfile
+    ports:
+      - "7005:7005"
+    depends_on:
+      - customer_db
+    environment:
+      - DB_SERVICE_URL=jdbc:postgresql://customer_db:5432/customer-service-db
+      - DB_SERVICE_USERNAME=default
+      - DB_SERVICE_PASSWORD=default
+    networks:
+      - host
+
   elering-adapter:
     image: elering-adapter-api
     container_name: elering-adapter-service
