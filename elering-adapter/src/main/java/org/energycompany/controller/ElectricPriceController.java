@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.List;
 
+import static org.energycompany.utils.EleringRequestParamsUtils.*;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -27,11 +29,11 @@ public class ElectricPriceController {
 
     private final EleringService eleringService;
 
-    @GetMapping
+    @GetMapping("/get-electric-prices")
     public ResponseEntity<List<EleringElectricPriceResponse>> getElectricPrices(
-            @RequestParam(name = "startDateTime") Instant startDateTime,
-            @RequestParam(name = "endDateTime") Instant endDateTime,
-            @RequestParam(name = "resolution") ResolutionEnum resolution
+            @RequestParam(name = START_DATE_PARAM) Instant startDateTime,
+            @RequestParam(name = END_DATE_PARAM) Instant endDateTime,
+            @RequestParam(name = RESOLUTION_PARAM) ResolutionEnum resolution
     ) {
 
         log.info("Received a request to fetch electric prices from Elering");

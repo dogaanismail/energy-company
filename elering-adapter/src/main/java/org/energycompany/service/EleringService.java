@@ -23,8 +23,8 @@ public class EleringService {
             ResolutionEnum resolution) {
 
         return eleringApi.getElectricPrices(
-                startDateTime,
-                endDateTime,
+                startDateTime.toString(),
+                endDateTime.toString(),
                 resolution.getResolutionValue());
     }
 }
