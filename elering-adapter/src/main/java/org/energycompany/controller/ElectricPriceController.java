@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.List;
 
-import static org.energycompany.utils.EleringRequestParamsUtils.*;
+import static org.energycompany.utils.EleringRequestParamsUtils.RESOLUTION_PARAM;
+import static org.energycompany.utils.EleringRequestParamsUtils.START_DATE_PARAM;
+import static org.energycompany.utils.EleringRequestParamsUtils.END_DATE_PARAM;
 
 @Slf4j
 @RestController

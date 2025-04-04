@@ -12,6 +12,19 @@ services:
     networks:
       - host
 
+  elering-adapter:
+    image: elering-adapter-api
+    container_name: elering-adapter-service
+    build:
+      context: ./elering-adapter
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5005"
+    environment:
+      - ELERING_API_URL=https://estfeed.elering.ee/
+    networks:
+      - host
+
 networks:
   host:
     driver: bridge
