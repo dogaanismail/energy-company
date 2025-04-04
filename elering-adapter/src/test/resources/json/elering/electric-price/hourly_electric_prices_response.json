@@ -1,0 +1,194 @@
+[
+  {
+    "centsPerKwh": 7.319,
+    "centsPerKwhWithVat": 8.92918,
+    "eurPerMwh": 73.19,
+    "eurPerMwhWithVat": 89.2918,
+    "fromDateTime": "2025-04-03T00:00:00+03:00",
+    "toDateTime": "2025-04-03T00:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 6.573,
+    "centsPerKwhWithVat": 8.01906,
+    "eurPerMwh": 65.73,
+    "eurPerMwhWithVat": 80.1906,
+    "fromDateTime": "2025-04-03T01:00:00+03:00",
+    "toDateTime": "2025-04-03T01:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 6.587,
+    "centsPerKwhWithVat": 8.03614,
+    "eurPerMwh": 65.87,
+    "eurPerMwhWithVat": 80.3614,
+    "fromDateTime": "2025-04-03T02:00:00+03:00",
+    "toDateTime": "2025-04-03T02:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 6.589,
+    "centsPerKwhWithVat": 8.03858,
+    "eurPerMwh": 65.89,
+    "eurPerMwhWithVat": 80.3858,
+    "fromDateTime": "2025-04-03T03:00:00+03:00",
+    "toDateTime": "2025-04-03T03:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 6.785,
+    "centsPerKwhWithVat": 8.2777,
+    "eurPerMwh": 67.85,
+    "eurPerMwhWithVat": 82.777,
+    "fromDateTime": "2025-04-03T04:00:00+03:00",
+    "toDateTime": "2025-04-03T04:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 6.987,
+    "centsPerKwhWithVat": 8.52414,
+    "eurPerMwh": 69.87,
+    "eurPerMwhWithVat": 85.2414,
+    "fromDateTime": "2025-04-03T05:00:00+03:00",
+    "toDateTime": "2025-04-03T05:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 10.769,
+    "centsPerKwhWithVat": 13.13818,
+    "eurPerMwh": 107.69,
+    "eurPerMwhWithVat": 131.3818,
+    "fromDateTime": "2025-04-03T06:00:00+03:00",
+    "toDateTime": "2025-04-03T06:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 13.743,
+    "centsPerKwhWithVat": 16.76646,
+    "eurPerMwh": 137.43,
+    "eurPerMwhWithVat": 167.6646,
+    "fromDateTime": "2025-04-03T07:00:00+03:00",
+    "toDateTime": "2025-04-03T07:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 16.431,
+    "centsPerKwhWithVat": 20.04582,
+    "eurPerMwh": 164.31,
+    "eurPerMwhWithVat": 200.4582,
+    "fromDateTime": "2025-04-03T08:00:00+03:00",
+    "toDateTime": "2025-04-03T08:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 10.6,
+    "centsPerKwhWithVat": 12.932,
+    "eurPerMwh": 106.0,
+    "eurPerMwhWithVat": 129.32,
+    "fromDateTime": "2025-04-03T09:00:00+03:00",
+    "toDateTime": "2025-04-03T09:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 0.0,
+    "centsPerKwhWithVat": 0.0,
+    "eurPerMwh": 0.0,
+    "eurPerMwhWithVat": 0.0,
+    "fromDateTime": "2025-04-03T10:00:00+03:00",
+    "toDateTime": "2025-04-03T10:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": -0.001,
+    "centsPerKwhWithVat": -0.00122,
+    "eurPerMwh": -0.01,
+    "eurPerMwhWithVat": -0.0122,
+    "fromDateTime": "2025-04-03T11:00:00+03:00",
+    "toDateTime": "2025-04-03T11:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": -0.104,
+    "centsPerKwhWithVat": -0.12688,
+    "eurPerMwh": -1.04,
+    "eurPerMwhWithVat": -1.2688,
+    "fromDateTime": "2025-04-03T12:00:00+03:00",
+    "toDateTime": "2025-04-03T12:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": -0.146,
+    "centsPerKwhWithVat": -0.17812,
+    "eurPerMwh": -1.46,
+    "eurPerMwhWithVat": -1.7812,
+    "fromDateTime": "2025-04-03T13:00:00+03:00",
+    "toDateTime": "2025-04-03T13:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": -0.809,
+    "centsPerKwhWithVat": -0.98698,
+    "eurPerMwh": -8.09,
+    "eurPerMwhWithVat": -9.8698,
+    "fromDateTime": "2025-04-03T14:00:00+03:00",
+    "toDateTime": "2025-04-03T14:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": -0.538,
+    "centsPerKwhWithVat": -0.65636,
+    "eurPerMwh": -5.38,
+    "eurPerMwhWithVat": -6.5636,
+    "fromDateTime": "2025-04-03T15:00:00+03:00",
+    "toDateTime": "2025-04-03T15:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": -0.058,
+    "centsPerKwhWithVat": -0.07076,
+    "eurPerMwh": -0.58,
+    "eurPerMwhWithVat": -0.7076,
+    "fromDateTime": "2025-04-03T16:00:00+03:00",
+    "toDateTime": "2025-04-03T16:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 1.689,
+    "centsPerKwhWithVat": 2.06058,
+    "eurPerMwh": 16.89,
+    "eurPerMwhWithVat": 20.6058,
+    "fromDateTime": "2025-04-03T17:00:00+03:00",
+    "toDateTime": "2025-04-03T17:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 6.061,
+    "centsPerKwhWithVat": 7.39442,
+    "eurPerMwh": 60.61,
+    "eurPerMwhWithVat": 73.9442,
+    "fromDateTime": "2025-04-03T18:00:00+03:00",
+    "toDateTime": "2025-04-03T18:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 14.282,
+    "centsPerKwhWithVat": 17.42404,
+    "eurPerMwh": 142.82,
+    "eurPerMwhWithVat": 174.2404,
+    "fromDateTime": "2025-04-03T19:00:00+03:00",
+    "toDateTime": "2025-04-03T19:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 22.511,
+    "centsPerKwhWithVat": 27.46342,
+    "eurPerMwh": 225.11,
+    "eurPerMwhWithVat": 274.6342,
+    "fromDateTime": "2025-04-03T20:00:00+03:00",
+    "toDateTime": "2025-04-03T20:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 8.501,
+    "centsPerKwhWithVat": 10.37122,
+    "eurPerMwh": 85.01,
+    "eurPerMwhWithVat": 103.7122,
+    "fromDateTime": "2025-04-03T21:00:00+03:00",
+    "toDateTime": "2025-04-03T21:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 8.503,
+    "centsPerKwhWithVat": 10.37366,
+    "eurPerMwh": 85.03,
+    "eurPerMwhWithVat": 103.7366,
+    "fromDateTime": "2025-04-03T22:00:00+03:00",
+    "toDateTime": "2025-04-03T22:59:59.999999999+03:00"
+  },
+  {
+    "centsPerKwh": 3.802,
+    "centsPerKwhWithVat": 4.63844,
+    "eurPerMwh": 38.02,
+    "eurPerMwhWithVat": 46.3844,
+    "fromDateTime": "2025-04-03T23:00:00+03:00",
+    "toDateTime": "2025-04-03T23:59:59.999999999+03:00"
+  }
+]
