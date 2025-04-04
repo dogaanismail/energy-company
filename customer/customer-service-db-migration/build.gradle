@@ -29,7 +29,7 @@ dependencies {
 }
 
 springBoot {
-    mainClass = 'com.energycompany.customer-service-db-migration.CustomerServiceDbMigrationApp'
+    mainClass = 'org.energycompany.CustomerServiceDbMigrationApp'
 }
 
 test {
