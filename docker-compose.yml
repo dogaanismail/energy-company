@@ -71,6 +71,22 @@ services:
     networks:
       - host
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "energycompany@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "energycompany"
+    ports:
+      - "9090:80"
+    volumes:
+      - "./docs/pgadmin/servers.json:/pgadmin4/servers.json:ro"
+    depends_on:
+      - customer_db
+      - consumption_db
+    networks:
+      - host
+
 networks:
   host:
     driver: bridge
