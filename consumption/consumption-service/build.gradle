@@ -1,0 +1,39 @@
+plugins {
+    // TODO: Get the version from gradle.properties
+    id 'org.springframework.boot' version "3.4.4"
+
+    // TODO: Get the version from gradle.properties
+    id 'io.spring.dependency-management' version "1.1.6"
+
+    id 'java'
+}
+
+group = 'org.energycompany'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.1'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.wiremock:wiremock-standalone:3.3.1'
+}
+
+springBoot {
+    mainClass = 'org.energycompany.ConsumptionServiceApplication'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = true
+}

@@ -10,6 +10,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/consumption/consumption-service" />
+            <option value="$PROJECT_DIR$/consumption/consumption-service-db-migration" />
+            <option value="$PROJECT_DIR$/consumption/consumption-service-db-migration-changelog" />
             <option value="$PROJECT_DIR$/customer/customer-service-db-migration" />
             <option value="$PROJECT_DIR$/customer/customer-service-db-migration-changelog" />
             <option value="$PROJECT_DIR$/elering-adapter" />

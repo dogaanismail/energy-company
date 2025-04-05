@@ -8,10 +8,19 @@ pluginManagement {
 
 rootProject.name = 'energy-company'
 include 'common'
+
 include 'customer-service-db-migration-changelog'
 include 'customer-service-db-migration'
-
 project(":customer-service-db-migration-changelog").projectDir = file("customer/customer-service-db-migration-changelog")
 project(":customer-service-db-migration").projectDir = file("customer/customer-service-db-migration")
+
+include 'consumption-service'
+include 'consumption-service-db-migration-changelog'
+include 'consumption-service-db-migration'
+project(":consumption-service").projectDir = file("consumption/consumption-service")
+project(":consumption-service-db-migration-changelog").projectDir = file("consumption/consumption-service-db-migration-changelog")
+project(":consumption-service-db-migration").projectDir = file("consumption/consumption-service-db-migration")
+
 include 'elering-adapter'
+
 
