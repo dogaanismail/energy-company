@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/consumption/consumption-service" />
             <option value="$PROJECT_DIR$/consumption/consumption-service-db-migration" />
             <option value="$PROJECT_DIR$/consumption/consumption-service-db-migration-changelog" />
+            <option value="$PROJECT_DIR$/customer/customer-service" />
             <option value="$PROJECT_DIR$/customer/customer-service-db-migration" />
             <option value="$PROJECT_DIR$/customer/customer-service-db-migration-changelog" />
             <option value="$PROJECT_DIR$/elering-adapter" />
