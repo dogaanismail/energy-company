@@ -18,6 +18,7 @@
             <option value="$PROJECT_DIR$/customer/customer-service-db-migration" />
             <option value="$PROJECT_DIR$/customer/customer-service-db-migration-changelog" />
             <option value="$PROJECT_DIR$/elering-adapter" />
+            <option value="$PROJECT_DIR$/eureka-server" />
           </set>
         </option>
       </GradleProjectSettings>

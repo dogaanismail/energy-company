@@ -82,6 +82,26 @@ services:
     networks:
       - host
 
+  eureka-server:
+    image: eureka-server:latest
+    container_name: eureka-server-app
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_APPLICATION_NAME=eureka-server
+      - EUREKA_INSTANCE_HOSTNAME=localhost
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+      - SERVER_PORT=8761
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - host
+
   api-gateway:
     image: api-gateway:latest
     container_name: api-gateway-app
@@ -92,7 +112,7 @@ services:
       - "4000:4000"
     environment:
       - SPRING_APPLICATION_NAME=api-gateway
-      - EUREKA_SERVICE_URL=http://eurekaserver:8761/eureka/
+      - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
     networks:
       - host
 

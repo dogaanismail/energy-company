@@ -25,4 +25,5 @@ project(":consumption-service-db-migration").projectDir = file("consumption/cons
 
 include 'elering-adapter'
 include 'api-gateway'
+include 'eureka-server'
 
