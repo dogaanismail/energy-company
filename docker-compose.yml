@@ -29,6 +29,17 @@ services:
     networks:
       - host
 
+  customer-service:
+    image: customer-service-api
+    container_name: customer-svc
+    build:
+      context: ./customer/customer-service
+      dockerfile: Dockerfile
+    ports:
+      - "5007:5007"
+    networks:
+      - host
+
   consumption_db:
     image: postgres:16.2
     restart: always

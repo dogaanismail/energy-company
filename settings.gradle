@@ -9,8 +9,10 @@ pluginManagement {
 rootProject.name = 'energy-company'
 include 'common'
 
+include 'customer-service'
 include 'customer-service-db-migration-changelog'
 include 'customer-service-db-migration'
+project(":customer-service").projectDir = file("customer/customer-service")
 project(":customer-service-db-migration-changelog").projectDir = file("customer/customer-service-db-migration-changelog")
 project(":customer-service-db-migration").projectDir = file("customer/customer-service-db-migration")
 
