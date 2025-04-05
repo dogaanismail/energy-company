@@ -46,6 +46,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
 
             String authorizationHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
+            //TODO: We might return an exception here.
             if (authorizationHeader == null || authorizationHeader.isEmpty()) {
                 return chain.filter(exchange);
             }
