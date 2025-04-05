@@ -13,7 +13,7 @@ services:
       - host
 
   customer_db_migration:
-    image: customer-service-db-migration-app
+    image: customer-service-db-migration-app:latest
     container_name: customer-service-db-migration-service
     build:
       context: ./customer/customer-service-db-migration
@@ -30,7 +30,7 @@ services:
       - host
 
   customer-service:
-    image: customer-service-api
+    image: customer-service-api:latest
     container_name: customer-svc
     build:
       context: ./customer/customer-service
@@ -53,7 +53,7 @@ services:
       - host
 
   consumption_db_migration:
-    image: consumption-service-db-migration-app
+    image: consumption-service-db-migration-app:latest
     container_name: consumption-service-db-migration-service
     build:
       context: ./consumption/consumption-service-db-migration
@@ -70,7 +70,7 @@ services:
       - host
 
   elering-adapter:
-    image: elering-adapter-api
+    image: elering-adapter-api:latest
     container_name: elering-adapter-service
     build:
       context: ./elering-adapter
@@ -79,6 +79,20 @@ services:
       - "5005:5005"
     environment:
       - ELERING_API_URL=https://estfeed.elering.ee/
+    networks:
+      - host
+
+  api-gateway:
+    image: api-gateway:latest
+    container_name: api-gateway-app
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - SPRING_APPLICATION_NAME=api-gateway
+      - EUREKA_SERVICE_URL=http://eurekaserver:8761/eureka/
     networks:
       - host
 
