@@ -1,0 +1,20 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Customer DB",
+      "Group": "Servers",
+      "Host": "customer_db",
+      "Port": 5432,
+      "Username": "default",
+      "SSLMode": "prefer"
+    },
+    "2": {
+      "Name": "Consumption DB",
+      "Group": "Servers",
+      "Host": "consumption_db",
+      "Port": 5432,
+      "Username": "default",
+      "SSLMode": "prefer"
+    }
+  }
+}
