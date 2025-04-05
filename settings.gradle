@@ -24,5 +24,5 @@ project(":consumption-service-db-migration-changelog").projectDir = file("consum
 project(":consumption-service-db-migration").projectDir = file("consumption/consumption-service-db-migration")
 
 include 'elering-adapter'
-
+include 'api-gateway'
 
