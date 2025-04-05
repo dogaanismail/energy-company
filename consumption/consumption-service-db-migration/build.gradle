@@ -1,0 +1,41 @@
+plugins {
+    // TODO: Get the version from gradle.properties
+    id 'org.springframework.boot' version "3.4.4"
+
+    // TODO: Get the version from gradle.properties
+    id 'io.spring.dependency-management' version "1.1.6"
+
+    id 'java'
+}
+
+group = 'org.energycompany'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    implementation 'org.liquibase:liquibase-core'
+    implementation 'org.postgresql:postgresql'
+
+    implementation project(':consumption-service-db-migration-changelog')
+
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:postgresql'
+}
+
+springBoot {
+    mainClass = 'org.energycompany.ConsumptionServiceDbMigrationApp'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = true
+}

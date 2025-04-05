@@ -29,6 +29,35 @@ services:
     networks:
       - host
 
+  consumption_db:
+    image: postgres:16.2
+    restart: always
+    environment:
+      POSTGRES_USER: default
+      POSTGRES_PASSWORD: default
+      POSTGRES_DB: consumption-service-db
+    ports:
+      - "5434:5432"
+    networks:
+      - host
+
+  consumption_db_migration:
+    image: consumption-service-db-migration-app
+    container_name: consumption-service-db-migration-service
+    build:
+      context: ./consumption/consumption-service-db-migration
+      dockerfile: Dockerfile
+    ports:
+      - "7006:7006"
+    depends_on:
+      - consumption_db
+    environment:
+      - DB_SERVICE_URL=jdbc:postgresql://consumption_db:5432/consumption-service-db
+      - DB_SERVICE_USERNAME=default
+      - DB_SERVICE_PASSWORD=default
+    networks:
+      - host
+
   elering-adapter:
     image: elering-adapter-api
     container_name: elering-adapter-service
@@ -48,3 +77,4 @@ networks:
 
 volumes:
   customer_db:
+  consumption_db:
