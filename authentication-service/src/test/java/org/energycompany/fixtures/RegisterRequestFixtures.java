@@ -13,7 +13,6 @@ public class RegisterRequestFixtures {
                 .password("validPassword123")
                 .firstName("John")
                 .lastName("Doe")
-                .userName("sample-username")
                 .role("customer")
                 .build();
     }
@@ -25,7 +24,6 @@ public class RegisterRequestFixtures {
                 .password("short")
                 .firstName("")
                 .lastName("")
-                .userName("sample-username")
                 .role("")
                 .build();
     }

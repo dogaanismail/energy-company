@@ -25,10 +25,6 @@ public class RegisterRequest {
     @NotBlank(message = "Last name can't be blank.")
     private String lastName;
 
-    @NotBlank(message = "Username can't be blank.")
-    @Size(min = 5, max = 20)
-    private String userName;
-
     @NotBlank(message = "Role can't be blank.")
     private String role;
 
