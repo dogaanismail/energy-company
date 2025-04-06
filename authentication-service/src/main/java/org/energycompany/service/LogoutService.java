@@ -2,6 +2,7 @@ package org.energycompany.service;
 
 import lombok.RequiredArgsConstructor;
 import org.energycompany.integration.customer.CustomerServiceClient;
+import org.energycompany.model.CustomResponse;
 import org.energycompany.model.auth.dto.request.TokenInvalidateRequest;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,8 @@ public class LogoutService {
 
     private final CustomerServiceClient customerServiceClient;
 
-    public void logout(TokenInvalidateRequest tokenInvalidateRequest) {
+    public CustomResponse<Void> logout(TokenInvalidateRequest tokenInvalidateRequest) {
 
-        customerServiceClient.logout(tokenInvalidateRequest);
+        return customerServiceClient.logout(tokenInvalidateRequest);
     }
 }

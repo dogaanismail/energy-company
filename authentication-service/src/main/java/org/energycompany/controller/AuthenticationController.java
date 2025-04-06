@@ -37,7 +37,6 @@ public class AuthenticationController {
         return CustomResponse.SUCCESS;
     }
 
-
     @PostMapping("/login")
     public CustomResponse<TokenResponse> loginCustomer(@RequestBody @Valid LoginRequest loginRequest) {
 
