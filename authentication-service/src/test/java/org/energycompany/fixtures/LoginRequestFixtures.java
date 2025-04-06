@@ -9,7 +9,7 @@ public class LoginRequestFixtures {
     public static LoginRequest getLoginRequest() {
 
         return LoginRequest.builder()
-                .userName("sample username")
+                .email("sample username")
                 .password("validPassword123")
                 .build();
     }

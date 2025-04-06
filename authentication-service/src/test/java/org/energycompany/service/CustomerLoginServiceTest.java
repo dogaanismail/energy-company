@@ -31,7 +31,7 @@ class CustomerLoginServiceTest extends AbstractBaseServiceTest {
         TokenResponse tokenResponse = TokenResponseFixtures.getTokenResponse();
 
         CustomResponse<TokenResponse> customResponse = CustomResponse.successOf(tokenResponse);
-        when(customerServiceClient.loginUser(any(LoginRequest.class))).thenReturn(customResponse);
+        when(customerServiceClient.loginCustomer(any(LoginRequest.class))).thenReturn(customResponse);
 
         CustomResponse<TokenResponse> response = customerLoginService.login(loginRequest);
 
@@ -40,7 +40,7 @@ class CustomerLoginServiceTest extends AbstractBaseServiceTest {
         assertEquals(HttpStatus.OK, response.getHttpStatus());
         assertEquals(tokenResponse, response.getResponse());
 
-        verify(customerServiceClient, times(1)).loginUser(any(LoginRequest.class));
+        verify(customerServiceClient, times(1)).loginCustomer(any(LoginRequest.class));
 
     }
 
@@ -53,7 +53,7 @@ class CustomerLoginServiceTest extends AbstractBaseServiceTest {
                 .isSuccess(false)
                 .build();
 
-        when(customerServiceClient.loginUser(any(LoginRequest.class))).thenReturn(errorResponse);
+        when(customerServiceClient.loginCustomer(any(LoginRequest.class))).thenReturn(errorResponse);
 
         CustomResponse<TokenResponse> response = customerLoginService.login(loginRequest);
 
@@ -62,7 +62,7 @@ class CustomerLoginServiceTest extends AbstractBaseServiceTest {
         assertEquals(HttpStatus.UNAUTHORIZED, response.getHttpStatus());
         assertNull(response.getResponse());
 
-        verify(customerServiceClient, times(1)).loginUser(any(LoginRequest.class));
+        verify(customerServiceClient, times(1)).loginCustomer(any(LoginRequest.class));
     }
 
 }

@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	compileOnly 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
 	compileOnly 'org.springframework:spring-web:6.1.12'
 
