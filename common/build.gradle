@@ -13,7 +13,12 @@ repositories {
 }
 
 dependencies {
+	compileOnly 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+	compileOnly 'org.springframework:spring-web:6.1.12'
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 }
+
 
