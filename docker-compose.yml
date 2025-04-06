@@ -31,7 +31,7 @@ services:
 
   customer-service:
     image: customer-service-api:latest
-    container_name: customer-svc
+    container_name: customer-service-app
     build:
       context: ./customer/customer-service
       dockerfile: Dockerfile
@@ -72,6 +72,23 @@ services:
       - DB_SERVICE_URL=jdbc:postgresql://consumption_db:5432/consumption-service-db
       - DB_SERVICE_USERNAME=default
       - DB_SERVICE_PASSWORD=default
+    networks:
+      - host
+
+  consumption-service:
+    image: consumption-service-api:latest
+    container_name: consumption-service-app
+    build:
+      context: ./customer/consumption-service
+      dockerfile: Dockerfile
+    ports:
+      - "5006:5006"
+    environment:
+      - SPRING_APPLICATION_NAME=consumption-service
+      - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_started
     networks:
       - host
 
