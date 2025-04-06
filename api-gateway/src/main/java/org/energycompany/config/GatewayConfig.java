@@ -1,6 +1,7 @@
 package org.energycompany.config;
 
 import lombok.RequiredArgsConstructor;
+import org.energycompany.constants.EurekaServerServices;
 import org.energycompany.filter.JwtAuthenticationFilter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -25,18 +26,18 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("consumptionservice", r -> r.path("/api/v1/consumptions/**")
+                .route(EurekaServerServices.CONSUMPTION_SERVICE.getServiceName(), r -> r.path("/api/v1/consumptions/**")
                         .filters(f -> f.filter(jwtAuthFilter.apply(new JwtAuthenticationFilter.Config()
                                 .setPublicEndpoints(PUBLIC_ENDPOINTS))))
-                        .uri("lb://consumptionservice"))
-                .route("authservice", r -> r.path("/api/v1/authentication/**")
+                        .uri("lb://consumption-service"))
+                .route(EurekaServerServices.AUTHENTICATION_SERVICE.getServiceName(), r -> r.path("/api/v1/authentication/**")
                         .filters(f -> f.filter(jwtAuthFilter.apply(new JwtAuthenticationFilter.Config()
                                 .setPublicEndpoints(PUBLIC_ENDPOINTS))))
-                        .uri("lb://authservice"))
-                .route("customerservice", r -> r.path("/api/v1/customers/**")
+                        .uri("lb://authentication-service"))
+                .route(EurekaServerServices.CUSTOMER_SERVICE.getServiceName(), r -> r.path("/api/v1/customers/**")
                         .filters(f -> f.filter(jwtAuthFilter.apply(new JwtAuthenticationFilter.Config()
                                 .setPublicEndpoints(PUBLIC_ENDPOINTS))))
-                        .uri("lb://customerservice"))
+                        .uri("lb://customer-service"))
                 .build();
     }
 }

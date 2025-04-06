@@ -135,6 +135,7 @@ services:
       - "4000:4000"
     environment:
       - SPRING_APPLICATION_NAME=api-gateway
+      - CUSTOMER_SERVICE_URL:http://customer-service:5007/
       - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
