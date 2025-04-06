@@ -1,7 +1,7 @@
 package org.energycompany.controller;
 
 import org.energycompany.common.BaseIntegrationTest;
-import org.energycompany.integration.elering.enums.ResolutionEnum;
+import org.energycompany.enums.ResolutionEnum;
 import org.energycompany.utils.JsonUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +10,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import wiremock.org.eclipse.jetty.http.HttpMethod;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.energycompany.utils.EleringRequestParamsUtils.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
-import static org.energycompany.utils.EleringRequestParamsUtils.RESOLUTION_PARAM;
-import static org.energycompany.utils.EleringRequestParamsUtils.START_DATE_PARAM;
-import static org.energycompany.utils.EleringRequestParamsUtils.END_DATE_PARAM;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class GetDailyElectricPricesControllerTest extends BaseIntegrationTest {
 

@@ -19,7 +19,6 @@ public class CustomerEntityFactory {
                 .email(registerRequest.getEmail())
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
-                .userName(registerRequest.getUserName())
                 .customerType(userType)
                 .build();
     }

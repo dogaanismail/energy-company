@@ -1,4 +1,4 @@
-package org.energycompany.model.customer.enums;
+package org.energycompany.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,6 @@ public enum TokenClaims {
     CUSTOMER_FIRST_NAME("customerFirstName"),
     CUSTOMER_LAST_NAME("customerLastName"),
     CUSTOMER_EMAIL("customerEmail"),
-    CUSTOMER_USERNAME("userName"),
     STORE_TITLE("storeTitle"),
     ISSUED_AT("iat"),
     EXPIRES_AT("exp"),

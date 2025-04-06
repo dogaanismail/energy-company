@@ -1,4 +1,4 @@
-package org.energycompany.integration.elering.enums;
+package org.energycompany.enums;
 
 import lombok.Getter;
 

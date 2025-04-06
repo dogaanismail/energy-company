@@ -1,4 +1,4 @@
-package org.energycompany.model.customer.enums;
+package org.energycompany.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

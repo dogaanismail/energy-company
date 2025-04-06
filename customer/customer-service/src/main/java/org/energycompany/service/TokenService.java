@@ -1,6 +1,5 @@
 package org.energycompany.service;
 
-
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +7,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.energycompany.config.TokenConfigurationParameter;
 import org.energycompany.model.Token;
 import org.energycompany.model.auth.enums.CustomerType;
-import org.energycompany.model.customer.enums.TokenClaims;
-import org.energycompany.model.customer.enums.TokenType;
+import org.energycompany.enums.TokenClaims;
+import org.energycompany.enums.TokenType;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -138,8 +137,10 @@ public class TokenService {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(customerType.name()));
 
-        return UsernamePasswordAuthenticationToken
-                .authenticated(jwt, null, authorities);
+        return UsernamePasswordAuthenticationToken.authenticated(
+                jwt,
+                null,
+                authorities);
     }
 
     public void verifyAndValidate(String jwt) {
