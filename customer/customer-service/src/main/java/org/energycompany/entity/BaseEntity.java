@@ -25,13 +25,21 @@ public class BaseEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "created_by", nullable = false, updatable = false)
+    @Column(
+            name = "created_by",
+            nullable = false,
+            updatable = false,
+            columnDefinition = "varchar(255) default 'anonymousUser'"
+    )
     private String createdBy;
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @Column(name = "updated_by", nullable = false)
+    @Column(
+            name = "updated_by",
+            nullable = false
+    )
     private String updatedBy;
 
     @Column(name = "deleted_at", updatable = false)
