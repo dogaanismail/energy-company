@@ -14,10 +14,18 @@ version = '0.0.1-SNAPSHOT'
 repositories {
     mavenCentral()
 }
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.1"
+    }
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.1'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
