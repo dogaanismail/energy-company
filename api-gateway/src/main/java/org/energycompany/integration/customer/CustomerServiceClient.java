@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface CustomerServiceClient {
 
     @PostMapping("/api/v1/customers/validate-token")
-    void validateToken(@RequestParam String token);
+    void validateToken(@RequestParam(name = "token") String token);
 }
 
