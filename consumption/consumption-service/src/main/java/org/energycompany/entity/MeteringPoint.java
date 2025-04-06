@@ -2,7 +2,6 @@ package org.energycompany.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.energycompany.entity.enums.Address;
 
 import java.util.UUID;
 
@@ -21,8 +20,7 @@ public class MeteringPoint extends BaseEntity {
     private UUID id;
 
     @Column(name = "address", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Address address;
+    private String address;
 
     @Column(name = "customer_id", nullable = false)
     private UUID customerId;
