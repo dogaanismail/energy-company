@@ -28,7 +28,7 @@ public class Consumption extends BaseEntity {
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
-    @Column(name = "amount_unit", nullable = false)
+    @Column(name = "amount_unit", nullable = false, length = 3)
     @Enumerated(EnumType.STRING)
     private AmountUnit amount_unit;
 
