@@ -5,9 +5,14 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="2025-04-05-15-10" author="Ismail Dogan">
-        <comment>Database Initialization</comment>
-        <sqlFile path="changelog/initial_schema.sql" relativeToChangelogFile="true"/>
+    <changeSet id="2025-04-06-21-25" author="Ismail Dogan">
+        <comment>Add metering point table</comment>
+        <sqlFile path="changelog/add_metering_point_table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet id="2025-04-06-21-48" author="Ismail Dogan">
+        <comment>Add consumption table</comment>
+        <sqlFile path="changelog/add_consumption_table.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
 </databaseChangeLog>
