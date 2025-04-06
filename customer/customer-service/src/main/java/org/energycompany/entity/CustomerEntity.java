@@ -26,21 +26,23 @@ public class CustomerEntity extends BaseEntity {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password")
-    private String password;
-
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Column(name = "customer_type", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private CustomerType customerType;
 
+    @Column(name = "customer_status", nullable = false, length = 50)
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private CustomerStatus customerStatus = CustomerStatus.ACTIVE;

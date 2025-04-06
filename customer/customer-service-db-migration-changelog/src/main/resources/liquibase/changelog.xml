@@ -5,9 +5,14 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="2025-04-03-03-39" author="Ismail Dogan">
-        <comment>Database Initialization</comment>
-        <sqlFile path="changelog/initial_schema.sql" relativeToChangelogFile="true"/>
+    <changeSet id="2025-04-06-20-43" author="Ismail Dogan">
+        <comment>Add customer table</comment>
+        <sqlFile path="changelog/add_customer_table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet id="2025-04-06-20-48" author="Ismail Dogan">
+        <comment>Add invalid token table</comment>
+        <sqlFile path="changelog/add_invalid_token_table.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
 </databaseChangeLog>

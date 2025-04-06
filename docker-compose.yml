@@ -119,9 +119,6 @@ services:
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
       - SERVER_PORT=8761
-    depends_on:
-      eureka-server:
-        condition: service_started
     networks:
       - host
 
