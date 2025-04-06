@@ -15,4 +15,14 @@
         <sqlFile path="changelog/add_consumption_table.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
+    <changeSet id="2025-04-06-23-25" author="Ismail Dogan">
+        <comment>Prefill metering point table</comment>
+        <sqlFile path="changelog/prefill_metering_point_table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet id="2025-04-06-23-49" author="Ismail Dogan">
+        <comment>Prefill consumption table</comment>
+        <sqlFile path="changelog/prefill_consumption_table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
 </databaseChangeLog>
