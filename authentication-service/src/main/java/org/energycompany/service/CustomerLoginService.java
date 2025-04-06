@@ -15,6 +15,6 @@ public class CustomerLoginService {
 
     public CustomResponse<TokenResponse> login(LoginRequest loginRequest) {
 
-        return customerServiceClient.loginUser(loginRequest);
+        return customerServiceClient.loginCustomer(loginRequest);
     }
 }

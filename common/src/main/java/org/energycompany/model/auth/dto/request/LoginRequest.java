@@ -3,7 +3,6 @@ package org.energycompany.model.auth.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-
 @Getter
 @Setter
 @Builder
@@ -12,7 +11,7 @@ import lombok.*;
 public class LoginRequest {
 
     @NotBlank
-    private String userName;
+    private String email;
 
     @NotBlank
     private String password;

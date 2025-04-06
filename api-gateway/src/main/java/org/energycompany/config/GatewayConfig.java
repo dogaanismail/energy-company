@@ -17,10 +17,10 @@ public class GatewayConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
 
     private static final List<String> PUBLIC_ENDPOINTS = List.of(
-            "/api/v1/authentication/users/register",
-            "/api/v1/authentication/users/login",
-            "/api/v1/authentication/users/refresh-token",
-            "/api/v1/authentication/users/logout"
+            "/api/v1/authentication/customers/register",
+            "/api/v1/authentication/customers/login",
+            "/api/v1/authentication/customers/refresh-token",
+            "/api/v1/authentication/customers/logout"
     );
 
     @Bean

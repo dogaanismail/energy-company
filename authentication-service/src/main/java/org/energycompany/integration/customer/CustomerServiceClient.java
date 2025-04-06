@@ -25,16 +25,16 @@ public interface CustomerServiceClient {
     @PostMapping("/api/v1/customers/validate-token")
     void validateToken(@RequestParam(name = "token") String token);
 
-    @PostMapping("/register")
+    @PostMapping("/api/v1/customers/register")
     ResponseEntity<Customer> register(@RequestBody @Valid RegisterRequest request);
 
-    @PostMapping("/login")
-    CustomResponse<TokenResponse> loginUser(@RequestBody @Valid LoginRequest loginRequest);
+    @PostMapping("/api/v1/customers/login")
+    CustomResponse<TokenResponse> loginCustomer(@RequestBody @Valid LoginRequest loginRequest);
 
-    @PostMapping("/refresh-token")
+    @PostMapping("/api/v1/customers//refresh-token")
     CustomResponse<TokenResponse> refreshToken(@RequestBody @Valid TokenRefreshRequest tokenRefreshRequest);
 
-    @PostMapping("/logout")
+    @PostMapping("/api/v1/customers/logout")
     CustomResponse<Void> logout(@RequestBody @Valid TokenInvalidateRequest tokenInvalidateRequest);
 }
 

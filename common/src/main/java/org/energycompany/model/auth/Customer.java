@@ -1,6 +1,5 @@
 package org.energycompany.model.auth;
 
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,4 +20,5 @@ public class Customer {
     private String userName;
     private CustomerStatus customerStatus;
     private CustomerType customerType;
+    private String password;
 }
