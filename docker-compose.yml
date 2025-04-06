@@ -116,6 +116,24 @@ services:
     networks:
       - host
 
+  authentication-service:
+    image: authentication-service:latest
+    container_name: authentication-service-app
+    build:
+      context: ./authentication-service
+      dockerfile: Dockerfile
+    ports:
+      - "2000:2000"
+    environment:
+      - server.port=2000
+      - SPRING_APPLICATION_NAME=authentication-service
+      - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - host
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin_container
