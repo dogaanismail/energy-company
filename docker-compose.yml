@@ -37,6 +37,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5007:5007"
+    environment:
+      - SPRING_APPLICATION_NAME=customer-service
+      - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_started
     networks:
       - host
 
@@ -113,6 +119,9 @@ services:
     environment:
       - SPRING_APPLICATION_NAME=api-gateway
       - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_started
     networks:
       - host
 
