@@ -15,7 +15,6 @@ public class CustomerFixtures {
                 .email("valid.email@example.com")
                 .firstName("John")
                 .lastName("Doe")
-                .userName("sample username")
                 .customerStatus(CustomerStatus.ACTIVE)
                 .customerType(CustomerType.CUSTOMER)
                 .build();

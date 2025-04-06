@@ -7,7 +7,7 @@ import org.energycompany.exception.CustomerStatusNotValidException;
 import org.energycompany.model.Token;
 import org.energycompany.model.auth.dto.request.TokenRefreshRequest;
 import org.energycompany.model.auth.enums.CustomerStatus;
-import org.energycompany.model.customer.enums.TokenClaims;
+import org.energycompany.enums.TokenClaims;
 import org.energycompany.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 

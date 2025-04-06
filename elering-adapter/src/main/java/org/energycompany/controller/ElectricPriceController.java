@@ -3,8 +3,8 @@ package org.energycompany.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.energycompany.enums.ResolutionEnum;
 import org.energycompany.integration.elering.dto.EleringElectricPriceResponse;
-import org.energycompany.integration.elering.enums.ResolutionEnum;
 import org.energycompany.service.EleringService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +31,7 @@ public class ElectricPriceController {
 
     private final EleringService eleringService;
 
-    @GetMapping("/get-electric-prices")
+    @GetMapping("/electric-prices")
     public ResponseEntity<List<EleringElectricPriceResponse>> getElectricPrices(
             @RequestParam(name = START_DATE_PARAM) Instant startDateTime,
             @RequestParam(name = END_DATE_PARAM) Instant endDateTime,

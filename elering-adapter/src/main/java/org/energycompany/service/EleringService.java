@@ -2,9 +2,9 @@ package org.energycompany.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.energycompany.enums.ResolutionEnum;
 import org.energycompany.integration.elering.api.EleringApi;
 import org.energycompany.integration.elering.dto.EleringElectricPriceResponse;
-import org.energycompany.integration.elering.enums.ResolutionEnum;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

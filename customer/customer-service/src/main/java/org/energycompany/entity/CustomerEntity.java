@@ -5,10 +5,11 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.energycompany.model.auth.enums.CustomerStatus;
 import org.energycompany.model.auth.enums.CustomerType;
-import org.energycompany.model.customer.enums.TokenClaims;
+import org.energycompany.enums.TokenClaims;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -23,7 +24,7 @@ public class CustomerEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
-    private String id;
+    private UUID id;
 
     @Column(name = "email")
     private String email;
@@ -36,9 +37,6 @@ public class CustomerEntity extends BaseEntity {
 
     @Column(name = "last_name")
     private String lastName;
-
-    @Column(name = "user_name")
-    private String userName;
 
     @Enumerated(EnumType.STRING)
     private CustomerType customerType;
@@ -57,7 +55,6 @@ public class CustomerEntity extends BaseEntity {
         claims.put(TokenClaims.CUSTOMER_FIRST_NAME.getValue(), this.firstName);
         claims.put(TokenClaims.CUSTOMER_LAST_NAME.getValue(), this.lastName);
         claims.put(TokenClaims.CUSTOMER_EMAIL.getValue(), this.email);
-        claims.put(TokenClaims.CUSTOMER_USERNAME.getValue(), this.userName);
 
         return claims;
     }

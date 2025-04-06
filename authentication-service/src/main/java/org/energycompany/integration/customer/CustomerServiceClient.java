@@ -16,25 +16,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
-        name = "customer-service-api",
+        name = "customer-service",
         url = "${integration.customer-service.url}"
 )
 @Headers({"Content-Type: application/json"})
 public interface CustomerServiceClient {
 
-    @PostMapping("/api/v1/customers/validate-token")
+    @PostMapping(value = "/api/v1/customers/validate-token")
     void validateToken(@RequestParam(name = "token") String token);
 
-    @PostMapping("/api/v1/customers/register")
+    @PostMapping(value = "/api/v1/customers/register")
     ResponseEntity<Customer> register(@RequestBody @Valid RegisterRequest request);
 
-    @PostMapping("/api/v1/customers/login")
+    @PostMapping(value = "/api/v1/customers/login")
     CustomResponse<TokenResponse> loginCustomer(@RequestBody @Valid LoginRequest loginRequest);
 
-    @PostMapping("/api/v1/customers//refresh-token")
+    @PostMapping(value = "/api/v1/customers//refresh-token")
     CustomResponse<TokenResponse> refreshToken(@RequestBody @Valid TokenRefreshRequest tokenRefreshRequest);
 
-    @PostMapping("/api/v1/customers/logout")
+    @PostMapping(value = "/api/v1/customers/logout")
     CustomResponse<Void> logout(@RequestBody @Valid TokenInvalidateRequest tokenInvalidateRequest);
 }
 
