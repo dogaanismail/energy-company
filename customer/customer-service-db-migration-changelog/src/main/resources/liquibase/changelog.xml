@@ -15,4 +15,9 @@
         <sqlFile path="changelog/add_invalid_token_table.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
+    <changeSet id="2025-04-06-22-30" author="Ismail Dogan">
+        <comment>Prefill customer table</comment>
+        <sqlFile path="changelog/prefill_customer_table.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
 </databaseChangeLog>
