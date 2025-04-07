@@ -3,121 +3,169 @@
     2025,
     4,
     7,
-    18,
-    55,
-    31,
-    413876137
+    21,
+    33,
+    5,
+    880894759
   ],
   "httpStatus": "OK",
   "isSuccess": true,
   "response": [
     {
-      "consumptionId": "99cfe338-547c-47d0-812c-411621ec97a1",
+      "consumptionId": "d0b002dc-9613-4f63-bc7b-ac9077793230",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "100.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-01-15T00:00:00Z"
+      "consumptionTime": "2024-01-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "1265.40000",
+      "monthlyCostCentsPerKwhWithVat": "1543.79470000",
+      "monthlyCostEurPerMwh": "12.654050",
+      "monthlyCostEurPerMwhWithVat": "15.43794720"
     },
     {
-      "consumptionId": "58c42a92-1adb-431b-b227-68f5ae47203d",
+      "consumptionId": "13cd0f64-5bcd-4c45-87ff-d8ad742b4358",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "110.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-02-15T00:00:00Z"
+      "consumptionTime": "2024-02-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "830.379000",
+      "monthlyCostCentsPerKwhWithVat": "1013.06766000",
+      "monthlyCostEurPerMwh": "8.303823",
+      "monthlyCostEurPerMwhWithVat": "10.13067693"
     },
     {
-      "consumptionId": "684ca5e9-7f06-4bfb-b38a-38d865583426",
+      "consumptionId": "33304466-eaaf-4e71-84e2-8c7803cf7aef",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "120.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-03-15T00:00:00Z"
+      "consumptionTime": "2024-03-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "818.736000",
+      "monthlyCostCentsPerKwhWithVat": "998.86860000",
+      "monthlyCostEurPerMwh": "8.187444",
+      "monthlyCostEurPerMwhWithVat": "9.98868672"
     },
     {
-      "consumptionId": "a97f78bf-dcc2-4b81-af67-4e8fd1a32848",
+      "consumptionId": "ae04cbff-c2a7-47bd-beb5-5391f2242c7f",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "130.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-04-15T00:00:00Z"
+      "consumptionTime": "2024-04-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "784.888000",
+      "monthlyCostCentsPerKwhWithVat": "957.56635000",
+      "monthlyCostEurPerMwh": "7.848893",
+      "monthlyCostEurPerMwhWithVat": "9.57566441"
     },
     {
-      "consumptionId": "6898cf8e-e8db-4095-8c0c-f5ea36a9cb5d",
+      "consumptionId": "05f71db3-a9f3-4fc8-9b3b-19afd32639c6",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "125.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-05-15T00:00:00Z"
+      "consumptionTime": "2024-05-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "947.400000",
+      "monthlyCostCentsPerKwhWithVat": "1155.84300000",
+      "monthlyCostEurPerMwh": "9.853077",
+      "monthlyCostEurPerMwhWithVat": "12.0207672"
     },
     {
-      "consumptionId": "061c6047-2d6a-4028-916a-86807d116e14",
+      "consumptionId": "7a98a124-0b69-4dc3-92d8-df64a7fa9c17",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "115.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-06-15T00:00:00Z"
+      "consumptionTime": "2024-06-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "1054.906500",
+      "monthlyCostCentsPerKwhWithVat": "1286.99225500",
+      "monthlyCostEurPerMwh": "11.007768",
+      "monthlyCostEurPerMwhWithVat": "13.42948548"
     },
     {
-      "consumptionId": "a876a5d9-9a77-4b59-8163-4b7703f1b127",
+      "consumptionId": "245256b6-5978-48fc-8b3c-c85fb2eb5a53",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "140.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-07-15T00:00:00Z"
+      "consumptionTime": "2024-07-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "1370.250000",
+      "monthlyCostCentsPerKwhWithVat": "1671.71914000",
+      "monthlyCostEurPerMwh": "13.702612",
+      "monthlyCostEurPerMwhWithVat": "16.71719224"
     },
     {
-      "consumptionId": "62ed2dce-1c08-46ce-a096-32dcc9533c76",
+      "consumptionId": "0f203192-2359-4e82-bcd9-ba50ff7b4245",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "150.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-08-15T00:00:00Z"
+      "consumptionTime": "2024-08-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "1604.085000",
+      "monthlyCostCentsPerKwhWithVat": "1956.99255000",
+      "monthlyCostEurPerMwh": "16.040910",
+      "monthlyCostEurPerMwhWithVat": "19.56992640"
     },
     {
-      "consumptionId": "ee50e8c5-b50b-49f7-9a71-44be9ea0718d",
+      "consumptionId": "8cdce662-e15e-402d-95a2-7ddbd9b0e965",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "130.00",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-09-15T00:00:00Z"
+      "consumptionTime": "2024-09-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "1095.848000",
+      "monthlyCostCentsPerKwhWithVat": "1336.94535000",
+      "monthlyCostEurPerMwh": "10.958558",
+      "monthlyCostEurPerMwhWithVat": "13.3694535"
     },
     {
-      "consumptionId": "c71c48f6-1c67-43a4-a6b3-e0cc3f638cf7",
+      "consumptionId": "1b594e23-e4c9-47bf-a175-8ea0d0fa7bc2",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "120.50",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-10-15T00:00:00Z"
+      "consumptionTime": "2024-10-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "1100.972350",
+      "monthlyCostCentsPerKwhWithVat": "1343.19988350",
+      "monthlyCostEurPerMwh": "10.964148",
+      "monthlyCostEurPerMwhWithVat": "13.37626536"
     },
     {
-      "consumptionId": "2eae60e0-7843-466f-97b8-2b163143c479",
+      "consumptionId": "88db5bc9-5cbf-4822-9a07-4acd58c82073",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "115.30",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-11-15T00:00:00Z"
+      "consumptionTime": "2024-11-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "951.766910",
+      "monthlyCostCentsPerKwhWithVat": "1161.1574750",
+      "monthlyCostEurPerMwh": "9.905652",
+      "monthlyCostEurPerMwhWithVat": "12.08490108"
     },
     {
-      "consumptionId": "e4ce5679-a485-4246-a89f-84ffee98d2e1",
+      "consumptionId": "9f41ed4a-8456-4de3-952e-957dadb72fd5",
       "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
       "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
       "address": "Estonia/Tallinn",
       "amount": "110.70",
       "amountUnit": "kWH",
-      "consumptionTime": "2024-12-15T00:00:00Z"
+      "consumptionTime": "2024-12-15T00:00:00Z",
+      "monthlyCostCentsPerKwh": "933.068160",
+      "monthlyCostCentsPerKwhWithVat": "1138.35654990",
+      "monthlyCostEurPerMwh": "9.271779",
+      "monthlyCostEurPerMwhWithVat": "11.3115827"
     }
   ]
 }

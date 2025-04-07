@@ -36,8 +36,10 @@ public class ConsumptionController {
     ) {
 
         log.info("Received a request to fetch consumptions for a customer");
-        List<ConsumptionResponse> consumptions = consumptionService
-                .getConsumptions(customerId, meteringPointId, year);
+        List<ConsumptionResponse> consumptions = consumptionService.getConsumptions(
+                customerId,
+                meteringPointId,
+                year);
         log.info("Consumptions fetched successfully, size: {}", consumptions.size());
 
         return CustomResponse.successOf(consumptions);

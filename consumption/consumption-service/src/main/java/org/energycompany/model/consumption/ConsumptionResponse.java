@@ -30,4 +30,17 @@ public class ConsumptionResponse {
 
     @JsonProperty("consumptionTime")
     private String consumptionTime;
+
+    @JsonProperty("monthlyCostCentsPerKwh")
+    private String monthlyCostCentsPerKwh;
+
+    @JsonProperty("monthlyCostCentsPerKwhWithVat")
+    private String monthlyCostCentsPerKwhWithVat;
+
+    @JsonProperty("monthlyCostEurPerMwh")
+    private String monthlyCostEurPerMwh;
+
+    @JsonProperty("monthlyCostEurPerMwhWithVat")
+    private String monthlyCostEurPerMwhWithVat;
 }
+
