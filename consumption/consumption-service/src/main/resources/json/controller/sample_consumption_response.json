@@ -1,0 +1,123 @@
+{
+  "time": [
+    2025,
+    4,
+    7,
+    18,
+    55,
+    31,
+    413876137
+  ],
+  "httpStatus": "OK",
+  "isSuccess": true,
+  "response": [
+    {
+      "consumptionId": "99cfe338-547c-47d0-812c-411621ec97a1",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "100.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-01-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "58c42a92-1adb-431b-b227-68f5ae47203d",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "110.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-02-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "684ca5e9-7f06-4bfb-b38a-38d865583426",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "120.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-03-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "a97f78bf-dcc2-4b81-af67-4e8fd1a32848",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "130.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-04-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "6898cf8e-e8db-4095-8c0c-f5ea36a9cb5d",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "125.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-05-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "061c6047-2d6a-4028-916a-86807d116e14",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "115.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-06-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "a876a5d9-9a77-4b59-8163-4b7703f1b127",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "140.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-07-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "62ed2dce-1c08-46ce-a096-32dcc9533c76",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "150.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-08-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "ee50e8c5-b50b-49f7-9a71-44be9ea0718d",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "130.00",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-09-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "c71c48f6-1c67-43a4-a6b3-e0cc3f638cf7",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "120.50",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-10-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "2eae60e0-7843-466f-97b8-2b163143c479",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "115.30",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-11-15T00:00:00Z"
+    },
+    {
+      "consumptionId": "e4ce5679-a485-4246-a89f-84ffee98d2e1",
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7",
+      "address": "Estonia/Tallinn",
+      "amount": "110.70",
+      "amountUnit": "kWH",
+      "consumptionTime": "2024-12-15T00:00:00Z"
+    }
+  ]
+}
