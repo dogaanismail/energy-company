@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.energycompany.enums.ResolutionEnum;
 import org.energycompany.integration.elering.dto.EleringElectricPriceResponse;
+import org.energycompany.model.CustomResponse;
 import org.energycompany.service.EleringService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.List;
 
-import static org.energycompany.utils.EleringRequestParamsUtils.RESOLUTION_PARAM;
-import static org.energycompany.utils.EleringRequestParamsUtils.START_DATE_PARAM;
-import static org.energycompany.utils.EleringRequestParamsUtils.END_DATE_PARAM;
+import static org.energycompany.utils.EleringRequestParamsUtils.*;
 
 @Slf4j
 @RestController
@@ -32,7 +30,7 @@ public class ElectricPriceController {
     private final EleringService eleringService;
 
     @GetMapping("/electric-prices")
-    public ResponseEntity<List<EleringElectricPriceResponse>> getElectricPrices(
+    public CustomResponse<List<EleringElectricPriceResponse>> getElectricPrices(
             @RequestParam(name = START_DATE_PARAM) Instant startDateTime,
             @RequestParam(name = END_DATE_PARAM) Instant endDateTime,
             @RequestParam(name = RESOLUTION_PARAM) ResolutionEnum resolution
@@ -45,6 +43,6 @@ public class ElectricPriceController {
                 resolution);
         log.info("Fetched {} electric prices from Elering", electricPrices.size());
 
-        return ResponseEntity.ok(electricPrices);
+        return CustomResponse.successOf(electricPrices);
     }
 }

@@ -27,11 +27,11 @@ public class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeseria
 
     @Override
     public UsernamePasswordAuthenticationToken deserialize(
-            JsonParser p,
-            DeserializationContext ctxt)
+            JsonParser jsonParser,
+            DeserializationContext deserializationContext)
             throws IOException {
 
-        JsonNode node = p.getCodec().readTree(p);
+        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         // Extract the nested principal object and deserialize it into a JwtRecord object
         JsonNode principalNode = node.get("principal");

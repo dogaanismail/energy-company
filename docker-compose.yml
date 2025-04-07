@@ -91,6 +91,7 @@ services:
       - DB_SERVICE_URL=jdbc:postgresql://consumption_db:5432/consumption-service-db
       - DB_SERVICE_USERNAME=default
       - DB_SERVICE_PASSWORD=default
+      - ELERING_ADAPTER_URL:http://elering-adapter:5005/
       - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
@@ -108,6 +109,10 @@ services:
       - "5005:5005"
     environment:
       - ELERING_API_URL=https://estfeed.elering.ee/
+      - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_started
     networks:
       - host
 

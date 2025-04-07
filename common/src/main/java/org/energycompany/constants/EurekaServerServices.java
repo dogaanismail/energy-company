@@ -8,6 +8,7 @@ public enum EurekaServerServices {
     API_GATEWAY("api_gateway"),
     CONSUMPTION_SERVICE("consumption_service"),
     CUSTOMER_SERVICE("customer_service"),
+    ELERING_ADAPTER("elering_adapter"),
     AUTHENTICATION_SERVICE("authentication_service");
 
     private final String serviceName;

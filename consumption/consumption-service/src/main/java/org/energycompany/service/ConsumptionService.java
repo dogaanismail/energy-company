@@ -1,46 +1,54 @@
 package org.energycompany.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.energycompany.entity.Consumption;
 import org.energycompany.entity.MeteringPoint;
-import org.energycompany.exception.MeteringPointNotFoundException;
+import org.energycompany.enums.ResolutionEnum;
+import org.energycompany.integration.elering.dto.EleringElectricPriceResponse;
 import org.energycompany.model.consumption.ConsumptionResponse;
 import org.energycompany.repository.ConsumptionRepository;
-import org.energycompany.repository.MeteringPointRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ConsumptionService {
 
     private final EleringAdapterService eleringAdapterService;
     private final ConsumptionRepository consumptionRepository;
-    private final MeteringPointRepository meteringPointRepository;
+    private final MeteringPointService meteringPointService;
 
     public List<ConsumptionResponse> getConsumptions(
             UUID customerId,
             UUID meteringPointId,
-            Instant startDateTime,
-            Instant endDateTime) {
+            int year) {
 
-        Optional<MeteringPoint> optionalMeteringPoint = meteringPointRepository
-                .findById(meteringPointId);
+        Instant yearStart = LocalDate.of(year, 1, 1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+        Instant yearEnd = LocalDate.of(year, 12, 31)
+                .atTime(LocalTime.MAX)
+                .atZone(ZoneOffset.UTC)
+                .toInstant();
 
-        if (optionalMeteringPoint.isEmpty()) {
-            throw new MeteringPointNotFoundException("Metering point not found for id:" + meteringPointId);
-        }
+        List<EleringElectricPriceResponse> monthlyElectricPrices = eleringAdapterService
+                .getElectricPrices(yearStart, yearEnd, ResolutionEnum.MONTH);
+        log.info("Monthly electric prices, size: {}", monthlyElectricPrices.size());
 
-        MeteringPoint meteringPoint = optionalMeteringPoint.get();
+        MeteringPoint meteringPoint = meteringPointService.getMeteringPoint(meteringPointId);
         List<Consumption> consumptions = consumptionRepository.findByCustomerIdAndMeteringPointIdAndConsumptionTimeBetween(
                 customerId,
                 meteringPointId,
-                startDateTime,
-                endDateTime
+                yearStart,
+                yearEnd
         );
 
         return mapToResponse(consumptions, meteringPoint);

@@ -16,7 +16,7 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 
         List<CustomError.CustomSubError> subErrors = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    protected ResponseEntity<Object> handlePathVariableErrors(final ConstraintViolationException constraintViolationException) {
+    protected ResponseEntity<Object> handlePathVariableErrors(ConstraintViolationException constraintViolationException) {
 
         List<CustomError.CustomSubError> subErrors = new ArrayList<>();
         constraintViolationException.getConstraintViolations()
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    protected ResponseEntity<?> handleRuntimeException(final RuntimeException runtimeException) {
+    protected ResponseEntity<?> handleRuntimeException(RuntimeException runtimeException) {
 
         CustomError customError = CustomError.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MeteringPointNotFoundException.class)
-    public ResponseEntity<CustomError> handleProductNotFoundException(final MeteringPointNotFoundException ex) {
+    public ResponseEntity<CustomError> handleMeteringPointNotFoundException(MeteringPointNotFoundException ex) {
 
         CustomError error = CustomError.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)

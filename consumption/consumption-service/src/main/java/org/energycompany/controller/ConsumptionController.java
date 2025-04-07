@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,14 +29,15 @@ public class ConsumptionController {
     @GetMapping("/customer")
     public CustomResponse<List<ConsumptionResponse>> getConsumptions(
             @RequestParam(name = "customerId") UUID customerId,
-            @RequestParam(name = "metering_point_id") UUID meteringPointId,
-            @RequestParam(name = "startDateTime") Instant startDateTime,
-            @RequestParam(name = "endDateTime") Instant endDateTime
+            @RequestParam(name = "meteringPointId") UUID meteringPointId,
+            @RequestParam(name = "year") int year
     ) {
 
         log.info("Received a request to fetch consumptions for a customer");
         List<ConsumptionResponse> consumptions = consumptionService
-                .getConsumptions(customerId, meteringPointId, startDateTime, endDateTime);
+                .getConsumptions(customerId, meteringPointId, year);
+        log.info("Consumptions fetched successfully, size: {}", consumptions.size());
+
         return CustomResponse.successOf(consumptions);
     }
 

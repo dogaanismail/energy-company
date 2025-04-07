@@ -43,12 +43,13 @@ public class GetAnnualElectricPricesControllerTest extends BaseIntegrationTest {
                         .param(RESOLUTION_PARAM, ResolutionEnum.WEEK.name())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(13)))
-                .andExpect(jsonPath("$[0].centsPerKwh").value("4.4502"))
-                .andExpect(jsonPath("$[0].centsPerKwhWithVat").value("5.34031"))
-                .andExpect(jsonPath("$[0].eurPerMwh").value("44.5026"))
-                .andExpect(jsonPath("$[0].eurPerMwhWithVat").value("53.40319"))
-                .andExpect(jsonPath("$[0].fromDateTime").value("2012-12-31T22:00:00Z"))
-                .andExpect(jsonPath("$[0].toDateTime").value("2013-12-31T21:59:59.999999999Z"));
+                .andExpect(jsonPath("$.response", hasSize(13)))
+                .andExpect(jsonPath("$.response[0].centsPerKwh").value("4.4502"))
+                .andExpect(jsonPath("$.response[0].centsPerKwhWithVat").value("5.34031"))
+                .andExpect(jsonPath("$.response[0].eurPerMwh").value("44.5026"))
+                .andExpect(jsonPath("$.response[0].eurPerMwhWithVat").value("53.40319"))
+                .andExpect(jsonPath("$.response[0].fromDateTime").value("2012-12-31T22:00:00Z"))
+                .andExpect(jsonPath("$.response[0].toDateTime").value("2013-12-31T21:59:59.999999999Z"));
+
     }
 }

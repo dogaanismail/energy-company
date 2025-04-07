@@ -3,12 +3,13 @@ package org.energycompany.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
+@SuperBuilder
 public class CustomResponse<T> {
 
     @Builder.Default
@@ -17,6 +18,10 @@ public class CustomResponse<T> {
     private HttpStatus httpStatus;
 
     private Boolean isSuccess;
+
+    public CustomResponse() {
+        // no-arg constructor for Jackson
+    }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T response;

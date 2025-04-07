@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "customer-service",
-        url = "${integration.customer-service.url}"
+        path = "/api/v1/customers"
 )
 @Headers({"Content-Type: application/json"})
 public interface CustomerServiceClient {
 
-    @PostMapping("/api/v1/customers/validate-token")
+    @PostMapping("/validate-token")
     void validateToken(@RequestParam(name = "token") String token);
 
-    @GetMapping("/api/v1/customers/authenticate")
+    @GetMapping("/authenticate")
     UsernamePasswordAuthenticationToken getAuthentication(
             @RequestParam(name = "token") String token
     );
