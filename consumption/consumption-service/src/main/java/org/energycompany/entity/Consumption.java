@@ -33,7 +33,7 @@ public class Consumption extends BaseEntity {
 
     @Column(name = "amount_unit", nullable = false, length = 3)
     @Enumerated(EnumType.STRING)
-    private AmountUnit amount_unit;
+    private AmountUnit amountUnit;
 
     @Column(name = "consumption_time", nullable = false)
     private Instant consumptionTime;
