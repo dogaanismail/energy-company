@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.energycompany.model.CustomResponse;
 import org.energycompany.model.Token;
+import org.energycompany.model.auth.Customer;
 import org.energycompany.model.auth.dto.request.LoginRequest;
 import org.energycompany.model.auth.dto.request.RegisterRequest;
 import org.energycompany.model.auth.dto.request.TokenInvalidateRequest;
@@ -17,18 +18,22 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerController {
 
+    private final CustomerLoginService customerLoginService;
+    private final CustomerService customerService;
+    private final LogoutService logoutService;
+    private final RefreshTokenService refreshTokenService;
     private final RegisterService registerService;
     private final TokenService tokenService;
-    private final CustomerLoginService customerLoginService;
-    private final RefreshTokenService refreshTokenService;
-    private final LogoutService logoutService;
-    private final TokenToTokenResponseMapper tokenToTokenResponseMapper = TokenToTokenResponseMapper.initialize();
+    private final TokenToTokenResponseMapper tokenToTokenResponseMapper = TokenToTokenResponseMapper
+            .initialize();
 
     @PostMapping("/register")
     public CustomResponse<Void> registerCustomer(
@@ -84,6 +89,15 @@ public class CustomerController {
         log.info("Received a request to get authentication for a token");
         UsernamePasswordAuthenticationToken authentication = tokenService.getAuthentication(token);
         return ResponseEntity.ok(authentication);
+    }
+
+    @GetMapping("/customer")
+    public CustomResponse<Customer> getCustomer(
+            @RequestParam(name = "customerId") UUID customerId) {
+
+        log.info("Received a request to get customer by id, {}", customerId);
+        Customer customer = customerService.getCustomer(customerId);
+        return CustomResponse.successOf(customer);
     }
 
 }

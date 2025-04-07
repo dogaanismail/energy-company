@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS consumption (
 
     id UUID NOT NULL PRIMARY KEY,
     metering_point_id UUID NOT NULL,
+    customer_id UUID NOT NULL,
     amount NUMERIC(19,2) NOT NULL,
     amount_unit VARCHAR(3) NOT NULL,
     consumption_time TIMESTAMPTZ NOT NULL,
@@ -17,3 +18,4 @@ CREATE TABLE IF NOT EXISTS consumption (
 );
 
 CREATE INDEX idx_consumption_metering_point_id ON consumption (metering_point_id);
+CREATE INDEX idx_consumption_customer_id ON consumption (customer_id);

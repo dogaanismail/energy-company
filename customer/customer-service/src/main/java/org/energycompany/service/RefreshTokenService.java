@@ -11,6 +11,8 @@ import org.energycompany.enums.TokenClaims;
 import org.energycompany.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
@@ -28,7 +30,7 @@ public class RefreshTokenService {
                 .toString();
 
         CustomerEntity customerEntityFromDB = customerRepository
-                .findById(customerId)
+                .findById(UUID.fromString(customerId))
                 .orElseThrow(CustomerNotFoundException::new);
 
         this.validateCustomerStatus(customerEntityFromDB);

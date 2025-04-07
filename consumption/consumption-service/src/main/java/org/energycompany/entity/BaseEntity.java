@@ -68,8 +68,15 @@ public class BaseEntity {
                 .map(Jwt.class::cast)
                 .map(jwt -> jwt.getClaim(TokenClaims.CUSTOMER_EMAIL.getValue()).toString())
                 .orElse("anonymousUser");
-
         this.createdAt = Instant.now();
+
+        this.updatedAt = Instant.now();
+        this.updatedBy = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(Authentication::getPrincipal)
+                .filter(user -> !"anonymousUser".equals(user))
+                .map(Jwt.class::cast)
+                .map(jwt -> jwt.getClaim(TokenClaims.CUSTOMER_EMAIL.getValue()).toString())
+                .orElse("anonymousUser");
     }
 
     @PreUpdate

@@ -1,5 +1,6 @@
 package org.energycompany.model.auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,5 +20,7 @@ public class Customer {
     private String lastName;
     private CustomerStatus customerStatus;
     private CustomerType customerType;
+
+    @JsonIgnore
     private String password;
 }

@@ -25,6 +25,9 @@ public class Consumption extends BaseEntity {
     @Column(name = "metering_point_id", nullable = false)
     private UUID meteringPointId;
 
+    @Column(name = "customer_id", nullable = false)
+    private UUID customerId;
+
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
