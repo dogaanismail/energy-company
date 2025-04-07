@@ -176,6 +176,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:80"
+    environment:
+      - REACT_APP_API_GATEWAY_URL=http://api-gateway:4000
     depends_on:
       - api-gateway
     networks:
