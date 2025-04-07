@@ -168,6 +168,19 @@ services:
     networks:
       - host
 
+  energy-company-client:
+    image: energy-company-client:latest
+    container_name: energy-company-client-app
+    build:
+      context: ./energy-company-client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - host
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin_container
