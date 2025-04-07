@@ -37,7 +37,7 @@ public class GetWeeklyElectricPricesControllerTest extends BaseIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(payload)));
 
-        mockMvc.perform(get("/api/v1/electric-price/get-electric-prices")
+        mockMvc.perform(get("/api/v1/electric-price/electric-prices")
                         .param(START_DATE_PARAM, "2024-12-31T22:00:00.000Z")
                         .param(END_DATE_PARAM, "2025-12-31T21:59:59.999Z")
                         .param(RESOLUTION_PARAM, ResolutionEnum.WEEK.name())

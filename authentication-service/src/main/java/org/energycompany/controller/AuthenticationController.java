@@ -44,14 +44,12 @@ public class AuthenticationController {
         return customerLoginService.login(loginRequest);
     }
 
-
     @PostMapping("/refresh-token")
     public CustomResponse<TokenResponse> refreshToken(@RequestBody @Valid TokenRefreshRequest tokenRefreshRequest) {
 
         log.info("Received a request to refresh a customer's token");
         return refreshTokenService.refreshToken(tokenRefreshRequest);
     }
-
 
     @PostMapping("/logout")
     public CustomResponse<Void> logout(@RequestBody @Valid TokenInvalidateRequest tokenInvalidateRequest) {

@@ -2,10 +2,13 @@ package org.energycompany.repository;
 
 import org.energycompany.entity.CustomerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface CustomerRepository extends JpaRepository<CustomerEntity, String> {
+@Repository
+public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> {
 
     boolean existsCustomerEntityByEmail(final String email);
 

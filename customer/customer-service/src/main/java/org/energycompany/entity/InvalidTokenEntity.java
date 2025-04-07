@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-@Entity
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Entity(name = "invalid_token")
 @Table(name = "invalid_token")
 public class InvalidTokenEntity extends BaseEntity {
 

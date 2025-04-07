@@ -1,6 +1,6 @@
 
 CREATE TABLE IF NOT EXISTS invalid_token (
-   id UUID NOT NULL PRIMARY KEY,
+    id VARCHAR NOT NULL PRIMARY KEY,
     token_id VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL,
     created_by VARCHAR(255) NOT NULL DEFAULT 'anonymousUser',

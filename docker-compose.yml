@@ -39,6 +39,9 @@ services:
       - "5007:5007"
     environment:
       - SPRING_APPLICATION_NAME=customer-service
+      - DB_SERVICE_URL=jdbc:postgresql://customer_db:5432/customer-service-db
+      - DB_SERVICE_USERNAME=default
+      - DB_SERVICE_PASSWORD=default
       - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
@@ -79,12 +82,15 @@ services:
     image: consumption-service-api:latest
     container_name: consumption-service-app
     build:
-      context: ./customer/consumption-service
+      context: ./consumption/consumption-service
       dockerfile: Dockerfile
     ports:
       - "5006:5006"
     environment:
       - SPRING_APPLICATION_NAME=consumption-service
+      - DB_SERVICE_URL=jdbc:postgresql://consumption_db:5432/consumption-service-db
+      - DB_SERVICE_USERNAME=default
+      - DB_SERVICE_PASSWORD=default
       - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
@@ -132,7 +138,6 @@ services:
       - "4000:4000"
     environment:
       - SPRING_APPLICATION_NAME=api-gateway
-      - CUSTOMER_SERVICE_URL:http://customer-service:5007/
       - EUREKA_SERVICE_URL=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
