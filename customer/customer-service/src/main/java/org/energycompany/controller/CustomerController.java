@@ -59,7 +59,10 @@ public class CustomerController {
 
         log.info("Received a request to login a customer");
         Token token = customerLoginService.login(loginRequest);
+
         TokenResponse tokenResponse = tokenToTokenResponseMapper.map(token);
+        log.info("Customer logged in successfully");
+
         return CustomResponse.successOf(tokenResponse);
     }
 

@@ -1,15 +1,25 @@
 import axios from 'axios';
 import { API_GATEWAY_URL } from '../config/config';
 
-export const request = (options) => {
-  const tokenValue = localStorage.getItem('ACCESS_TOKEN');
+export const request = async (options) => {
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  const header = await getAuthHeader()
+  if (header) {
+    headers.Authorization = header;
+  }
+
+  if (options.headers) {
+    Object.assign(headers, options.headers);
+  }
 
   const axiosInstance = axios.create({
     baseURL: API_GATEWAY_URL,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(tokenValue && { Authorization: `Bearer ${tokenValue}` }),
-    },
+    headers,
   });
 
   return axiosInstance(options)
@@ -21,3 +31,12 @@ export const request = (options) => {
       return Promise.reject({ message: error.message });
     });
 };
+
+async function getAuthHeader() {
+  const token = localStorage.getItem('token'); 
+  if (token) {
+    const parsedToken = JSON.parse(token); 
+    return { Authorization: `Bearer ${parsedToken}` }; 
+  }
+  return null; 
+}
