@@ -1,0 +1,25 @@
+{
+  "time": [
+    2025,
+    4,
+    8,
+    23,
+    42,
+    2,
+    377335046
+  ],
+  "httpStatus": "OK",
+  "isSuccess": true,
+  "response": [
+    {
+      "meteringPointId": "e2d51caa-fb3a-4c80-a7e3-7350421aea10",
+      "address": "Estonia/Tallinn",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7"
+    },
+    {
+      "meteringPointId": "a790caaa-beef-4a1f-8ee3-273f94f82c38",
+      "address": "Estonia/Tartu",
+      "customerId": "edb24e51-1c16-4df9-8ba5-845435cf66d7"
+    }
+  ]
+}
