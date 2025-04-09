@@ -14,6 +14,7 @@ import org.energycompany.service.GetAuthenticationService;
 import org.energycompany.service.ValidateTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -35,38 +36,48 @@ public class CustomBearerTokenAuthenticationFilter extends OncePerRequestFilter 
 
         log.debug("CustomBearerTokenAuthenticationFilter: Request received for URI: {}", httpServletRequest.getRequestURI());
 
-        final String authorizationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-
+        String authorizationHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
         if (Token.isBearerToken(authorizationHeader)) {
-            final String jwtToken = Token.getJwt(authorizationHeader);
 
-            try {
+            Authentication authentication = SecurityContextHolder
+                    .getContext()
+                    .getAuthentication();
+            if (authentication == null) {
 
-                // Validate the token synchronously
-                validateTokenService.validateToken(jwtToken);
-                log.debug("Token validation succeeded for request: {}", httpServletRequest.getRequestURI());
+                log.info("No authentication found for request: {}", httpServletRequest.getRequestURI());
+                String jwtToken = Token.getJwt(authorizationHeader);
+                try {
 
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = getAuthenticationService
-                        .getUsernamePasswordAuthenticationToken(jwtToken);
+                    log.info("Validating token for request: {}", httpServletRequest.getRequestURI());
+                    validateTokenService.validateToken(jwtToken);
+                    log.info("Token validation succeeded for request: {}", httpServletRequest.getRequestURI());
 
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = getAuthenticationService
+                            .getUsernamePasswordAuthenticationToken(jwtToken);
 
-            } catch (FeignException e) {
-                log.error("Token validation failed for request: {}", httpServletRequest.getRequestURI(), e);
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(usernamePasswordAuthenticationToken);
 
-                // Handle the error response
-                if (e instanceof FeignException.Unauthorized || e instanceof FeignException.Forbidden) {
-                    httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-                } else {
-                    httpServletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    log.info("Token validation succeeded for request: {}", httpServletRequest.getRequestURI());
+                } catch (FeignException e) {
+                    log.error("Token validation failed for request: {}", httpServletRequest.getRequestURI(), e);
+
+                    // Handle the error response
+                    if (e instanceof FeignException.Unauthorized || e instanceof FeignException.Forbidden) {
+                        httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    } else {
+                        httpServletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    }
+                    httpServletResponse.getWriter().write(e.getMessage());
                 }
-                httpServletResponse.getWriter().write(e.getMessage());
+            } else {
+                log.info("Authentication already found for request: {}", httpServletRequest.getRequestURI());
             }
         } else {
             log.warn("Missing or invalid Authorization header for request: {}", httpServletRequest.getRequestURI());
         }
 
-        // Proceed with the filter chain in any case
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 

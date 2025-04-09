@@ -29,7 +29,7 @@ public class ConsumptionResponseFactory {
                         .build()).toList();
     }
 
-    public ConsumptionResponse getConsumptionResponse(
+    public static ConsumptionResponse getConsumptionResponse(
             Consumption consumption,
             MeteringPoint meteringPoint,
             BigDecimal monthlyCostCentsPerKwh,

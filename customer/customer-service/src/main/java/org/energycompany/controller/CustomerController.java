@@ -14,6 +14,7 @@ import org.energycompany.model.auth.dto.response.TokenResponse;
 import org.energycompany.model.customer.mapper.TokenToTokenResponseMapper;
 import org.energycompany.service.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -100,6 +101,15 @@ public class CustomerController {
 
         log.info("Received a request to get customer by id, {}", customerId);
         Customer customer = customerService.getCustomer(customerId);
+        return CustomResponse.successOf(customer);
+    }
+
+    @GetMapping("/current-customer")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    public CustomResponse<Customer> getCurrentCustomer() {
+
+        log.info("Received a request to get current customer");
+        Customer customer = customerService.getCurrentCustomer();
         return CustomResponse.successOf(customer);
     }
 

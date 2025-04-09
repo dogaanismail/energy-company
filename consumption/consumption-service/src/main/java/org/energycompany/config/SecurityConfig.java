@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(customizer -> customizer
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 .addFilterBefore(customBearerTokenAuthenticationFilter, BearerTokenAuthenticationFilter.class);
 
         log.debug("CustomBearerTokenAuthenticationFilter added to the filter chain");

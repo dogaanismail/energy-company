@@ -14,27 +14,34 @@ import java.security.PublicKey;
 @UtilityClass
 public class KeyConverter {
 
-    public PublicKey convertPublicKey(final String publicPemKey) {
+    public static PublicKey convertPublicKey(String publicPemKey) {
+        try (
+                StringReader keyReader = new StringReader(publicPemKey);
+                PEMParser pemParser = new PEMParser(keyReader)
+        ) {
+            SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo
+                    .getInstance(pemParser.readObject());
 
-        final StringReader keyReader = new StringReader(publicPemKey);
-        try {
-            SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo
-                    .getInstance(new PEMParser(keyReader).readObject());
-            return new JcaPEMKeyConverter().getPublicKey(publicKeyInfo);
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
+            return new JcaPEMKeyConverter()
+                    .getPublicKey(subjectPublicKeyInfo);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public PrivateKey convertPrivateKey(final String privatePemKey) {
+    public static PrivateKey convertPrivateKey(final String privatePemKey) {
 
-        StringReader keyReader = new StringReader(privatePemKey);
-        try {
+        try (
+                StringReader keyReader = new StringReader(privatePemKey);
+                PEMParser pemParser = new PEMParser(keyReader)
+        ) {
             PrivateKeyInfo privateKeyInfo = PrivateKeyInfo
-                    .getInstance(new PEMParser(keyReader).readObject());
-            return new JcaPEMKeyConverter().getPrivateKey(privateKeyInfo);
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
+                    .getInstance(pemParser.readObject());
+
+            return new JcaPEMKeyConverter()
+                    .getPrivateKey(privateKeyInfo);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

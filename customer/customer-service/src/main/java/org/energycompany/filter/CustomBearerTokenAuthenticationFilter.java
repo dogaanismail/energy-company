@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.energycompany.model.Token;
-import org.energycompany.service.InvalidTokenService;
 import org.energycompany.service.TokenService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
@@ -24,7 +23,6 @@ import java.io.IOException;
 public class CustomBearerTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final InvalidTokenService invalidTokenService;
 
     @Override
     public void doFilterInternal(@NonNull final HttpServletRequest httpServletRequest,
@@ -37,18 +35,12 @@ public class CustomBearerTokenAuthenticationFilter extends OncePerRequestFilter 
         if (Token.isBearerToken(authorizationHeader)) {
 
             String jwtToken = Token.getJwt(authorizationHeader);
-
-            tokenService.verifyAndValidate(jwtToken);
-
-            String tokenId = tokenService.getId(jwtToken);
-
-            invalidTokenService.checkForInvalidityOfToken(tokenId);
-
             UsernamePasswordAuthenticationToken authentication = tokenService
                     .getAuthentication(jwtToken);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(authentication);
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);

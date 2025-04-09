@@ -27,8 +27,7 @@ public class GatewayConfig {
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(EurekaServerServices.CONSUMPTION_SERVICE.getServiceName(), r -> r.path(
-                                "/api/v1/consumptions/**",
-                                "/api/v1/metering-points/**"
+                                "/api/v1/consumptions/**"
                         )
                         .filters(f -> f.filter(jwtAuthFilter.apply(new JwtAuthenticationFilter.Config()
                                 .setPublicEndpoints(PUBLIC_ENDPOINTS))))

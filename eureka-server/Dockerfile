@@ -7,6 +7,6 @@ WORKDIR /usr/app
 
 COPY build/libs/eureka-server-0.0.1-SNAPSHOT.jar /usr/app/
 
-ENV JAVA_OPTS="-Xmx32m"
+ENV JAVA_OPTS="-Xmx512m"
 
 CMD exec java $JAVA_OPTS -jar eureka-server-0.0.1-SNAPSHOT.jar

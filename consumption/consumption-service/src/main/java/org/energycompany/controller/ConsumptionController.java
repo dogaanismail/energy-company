@@ -23,12 +23,12 @@ import java.util.UUID;
         description = "APIs that are exposed to fetch consumptions for a specific customer"
 )
 @RequestMapping("/api/v1/consumptions")
+@PreAuthorize("hasAuthority('CUSTOMER')")
 public class ConsumptionController {
 
     private final ConsumptionService consumptionService;
 
     @GetMapping("/customer")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
     public CustomResponse<List<ConsumptionResponse>> getConsumptions(
             @RequestParam(name = "customerId") UUID customerId,
             @RequestParam(name = "meteringPointId") UUID meteringPointId,

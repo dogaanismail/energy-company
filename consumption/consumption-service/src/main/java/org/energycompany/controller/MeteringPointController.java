@@ -22,13 +22,13 @@ import java.util.UUID;
         name = "Metering Point Controller",
         description = "APIs that are exposed to fetch metering points"
 )
-@RequestMapping("/api/v1/metering-points")
+@RequestMapping("/api/v1/consumptions/metering-points")
+@PreAuthorize("hasAuthority('CUSTOMER')")
 public class MeteringPointController {
 
     private final MeteringPointService meteringPointService;
 
     @GetMapping("/customer")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
     public CustomResponse<List<MeteringPointResponse>> getMeteringPoints(
             @RequestParam(name = "customerId") UUID customerId
     ) {

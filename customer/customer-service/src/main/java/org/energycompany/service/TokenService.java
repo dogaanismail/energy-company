@@ -16,6 +16,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.*;
 
 @Service
@@ -25,6 +27,8 @@ public class TokenService {
 
     private final TokenConfigurationParameter tokenConfigurationParameter;
     private final InvalidTokenService invalidTokenService;
+    private final PublicKey publicKey;
+    private final PrivateKey privateKey;
 
     public void verifyAndValidate(Set<String> jwts) {
         jwts.forEach(this::verifyAndValidate);
@@ -48,7 +52,7 @@ public class TokenService {
                 .id(UUID.randomUUID().toString())
                 .issuedAt(tokenIssuedAt)
                 .expiration(accessTokenExpiresAt)
-                .signWith(tokenConfigurationParameter.getPrivateKey())
+                .signWith(privateKey)
                 .claims(claims)
                 .compact();
 
@@ -64,7 +68,7 @@ public class TokenService {
                 .id(UUID.randomUUID().toString())
                 .issuedAt(tokenIssuedAt)
                 .expiration(refreshTokenExpiresAt)
-                .signWith(tokenConfigurationParameter.getPrivateKey())
+                .signWith(privateKey)
                 .claim(TokenClaims.CUSTOMER_ID.getValue(), claims.get(TokenClaims.CUSTOMER_ID.getValue()))
                 .compact();
 
@@ -74,7 +78,6 @@ public class TokenService {
                 .refreshToken(refreshToken)
                 .build();
     }
-
 
     public Token generateToken(
             Map<String, Object> claims,
@@ -100,7 +103,7 @@ public class TokenService {
                 .id(UUID.randomUUID().toString())
                 .issuedAt(accessTokenIssuedAt)
                 .expiration(accessTokenExpiresAt)
-                .signWith(tokenConfigurationParameter.getPrivateKey())
+                .signWith(privateKey)
                 .claims(claims)
                 .compact();
 
@@ -114,7 +117,7 @@ public class TokenService {
     public UsernamePasswordAuthenticationToken getAuthentication(String token) {
 
         Jws<Claims> claimsJws = Jwts.parser()
-                .verifyWith(tokenConfigurationParameter.getPublicKey())
+                .verifyWith(publicKey)
                 .build()
                 .parseSignedClaims(token);
 
@@ -146,18 +149,13 @@ public class TokenService {
     public void verifyAndValidate(String jwt) {
 
         try {
-            Jws<Claims> claimsJws = Jwts.parser()
-                    .verifyWith(tokenConfigurationParameter.getPublicKey())
-                    .build()
-                    .parseSignedClaims(jwt);
-
-            // Log the claims for debugging purposes
-            Claims claims = claimsJws.getPayload();
-            log.info("Token claims: {}", claims);
-
-            // Additional checks (e.g., expiration, issuer, etc.)
-            if (claims.getExpiration().before(new Date())) {
-                throw new JwtException("Token has expired");
+            JwtParser jwtParser = Jwts.parser()
+                    .verifyWith(publicKey)
+                    .build();
+            try {
+                jwtParser.parse(jwt);
+            } catch (Exception e) {
+                throw new Exception("Could not verify JWT token integrity!", e);
             }
 
             log.info("Token is valid");
@@ -176,7 +174,7 @@ public class TokenService {
     public Claims getPayload(String jwt) {
 
         return Jwts.parser()
-                .verifyWith(tokenConfigurationParameter.getPublicKey())
+                .verifyWith(publicKey)
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload();
@@ -185,7 +183,7 @@ public class TokenService {
     public String getId(String jwt) {
 
         return Jwts.parser()
-                .verifyWith(tokenConfigurationParameter.getPublicKey())
+                .verifyWith(publicKey)
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload()
