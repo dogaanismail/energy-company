@@ -83,6 +83,16 @@ Once the application is running:
 - Backend APIs: Available through the API Gateway at http://localhost:4000/
 - Eureka Dashboard: Monitor services at http://localhost:8761/
 
+### Demo Accounts 👤
+
+The following demo accounts are available for testing:
+
+| Email | Password |
+|-------|----------|
+| alice@example.com | energycompany |
+| bob@example.com | energycompany |
+
+
 ## 💻 Development
 
 Each microservice follows a modular structure:
