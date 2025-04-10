@@ -100,26 +100,4 @@ Each microservice follows a modular structure:
 - Database migration application
 - Liquibase changelog scripts
 
-## 🐛 Issues
-
-### Open Issues
-
-[![GitHub issues](https://img.shields.io/github/issues/dogaanismail/energy-company-platform.svg)](https://github.com/dogaanismail/energy-company-platform/issues)
-
-- [Feature Request: Add support for solar panel integration](https://github.com/dogaanismail/energy-company-platform/issues/42)
-- [Bug: Authentication fails with special characters in password](https://github.com/dogaanismail/energy-company-platform/issues/45)
-- [Enhancement: Improve mobile responsiveness of dashboard](https://github.com/dogaanismail/energy-company-platform/issues/48)
-
-See all open issues [here](https://github.com/dogaanismail/energy-company-platform/issues).
-
-### Resolved Issues
-
-[![GitHub closed issues](https://img.shields.io/github/issues-closed/dogaanismail/energy-company-platform.svg)](https://github.com/dogaanismail/energy-company-platform/issues?q=is%3Aissue+is%3Aclosed)
-
-Recent fixes:
-- [✅ Fix: Data synchronization issue between services](https://github.com/dogaanismail/energy-company-platform/issues/37)
-- [✅ Performance: Optimize database queries for consumption data](https://github.com/dogaanismail/energy-company-platform/issues/32)
-- [✅ Security: Update JWT implementation to fix vulnerability](https://github.com/dogaanismail/energy-company-platform/issues/29)
-
-See all resolved issues [here](https://github.com/dogaanismail/energy-company-platform/issues?q=is%3Aissue+is%3Aclosed).
 
