@@ -11,11 +11,6 @@ jest.mock('../services/api', () => ({
   }
 }));
 
-jest.mock('../components/ui/LoadingSpinner', () => ({
-  __esModule: true,
-  default: () => <div data-testid="loading-spinner">Loading...</div>
-}));
-
 describe('MeteringPoints', () => {
   const mockCustomer = {
     id: 'customer123',
