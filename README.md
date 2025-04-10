@@ -4,7 +4,7 @@ A comprehensive energy management system that connects customers with their ener
 
 ## 📊 Overview
 
-This platform provides customers with tools to monitor their energy usage, manage metering points, and access real-time energy pricing information. The system consists of multiple microservices for scalability and maintainability.
+This platform provides customers with tools to monitor their energy usage, manage metering points, and see energy pricing information. The system consists of multiple microservices for scalability and maintainability.
 
 ## 🏗️ Architecture
 
