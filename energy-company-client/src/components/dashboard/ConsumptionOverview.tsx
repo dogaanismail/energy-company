@@ -38,7 +38,6 @@ const ConsumptionOverview = () => {
   const [error, setError] = useState<string | null>(null);
   const [year, setYear] = useState(new Date().getFullYear());
 
-
   useEffect(() => {
     const fetchMeteringPoints = async () => {
       if (!customerId) return;
