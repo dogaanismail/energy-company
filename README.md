@@ -1,6 +1,6 @@
 # ⚡ Energy Company Platform 🔋
 
-A comprehensive energy management system that connects customers with their energy consumption data and metering points.
+Energy management system that connects customers with their energy consumption data and metering points.
 
 ## 📊 Overview
 
