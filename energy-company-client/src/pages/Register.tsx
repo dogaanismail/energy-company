@@ -4,15 +4,15 @@ import { useAuth } from '../auth/AuthContext';
 import { useForm } from 'react-hook-form';
 
 type RegisterFormData = {
-  username: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   password: string;
   confirmPassword: string;
 };
 
 const Register = () => {
-  const { register: registerUser } = useAuth();
+  const { register: registerCustomer } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ const Register = () => {
     setError(null);
     
     try {
-      await registerUser(data.username, data.password, data.email, data.name);
+      await registerCustomer(data.email, data.firstName, data.lastName, data.password, 'CUSTOMER');
       navigate('/login', { state: { message: 'Registration successful! You can now login.' } });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
@@ -68,40 +68,12 @@ const Register = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="sr-only">Username</label>
-              <input
-                id="username"
-                type="text"
-                autoComplete="username"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                {...register("username", { required: "Username is required" })}
-              />
-              {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="name" className="sr-only">Full Name</label>
-              <input
-                id="name"
-                type="text"
-                autoComplete="name"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Full Name"
-                {...register("name", { required: "Full name is required" })}
-              />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">Email</label>
+              <label htmlFor="email" className="sr-only">Email address</label>
               <input
                 id="email"
                 type="email"
                 autoComplete="email"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Email"
                 {...register("email", { 
                   required: "Email is required",
@@ -113,6 +85,34 @@ const Register = () => {
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              )}
+            </div>
+            <div>
+              <label htmlFor="firstName" className="sr-only">First Name</label>
+              <input
+                id="firstName"
+                type="text"
+                autoComplete="given-name"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                placeholder="First Name"
+                {...register("firstName", { required: "First name is required" })}
+              />
+              {errors.firstName && (
+                <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
+              )}
+            </div>
+            <div>
+              <label htmlFor="lastName" className="sr-only">Last Name</label>
+              <input
+                id="lastName"
+                type="text"
+                autoComplete="family-name"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                placeholder="Last Name"
+                {...register("lastName", { required: "Last name is required" })}
+              />
+              {errors.lastName && (
+                <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
               )}
             </div>
             <div>

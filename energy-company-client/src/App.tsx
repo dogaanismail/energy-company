@@ -12,13 +12,13 @@ import Layout from './components/layout/Layout';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
-  const { user, loading } = useAuth();
+  const { customer, loading } = useAuth();
 
   if (loading) {
     return <LoadingSpinner />;
   }
 
-  if (!user) {
+  if (!customer) {
     return <Navigate to="/login" replace />;
   }
 
@@ -29,11 +29,9 @@ function AppRoutes() {
   return (
     <Router>
       <Routes>
-        {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
-        {/* Protected routes */}
         <Route path="/" element={
           <ProtectedRoute>
             <Layout />

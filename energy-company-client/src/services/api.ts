@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { CustomResponse, ConsumptionData, MeteringPoint, User } from '../models/models';
+import { CustomResponse, ConsumptionData, MeteringPoint, Customer, TokenResponse } from '../models/models';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:4000';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -12,7 +12,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,103 +23,113 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+          const response = await axios.post(`${API_URL}/api/v1/authentication/customers/refresh-token`, { refreshToken });
+          const newTokens = response.data.response;
+          
+          localStorage.setItem('accessToken', newTokens.accessToken);
+          if (newTokens.refreshToken) {
+            localStorage.setItem('refreshToken', newTokens.refreshToken);
+          }
+          
+          originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+          return axios(originalRequest);
+        }
+      } catch (refreshError) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
       }
     }
+    
     return Promise.reject(error);
   }
 );
 
 const extractResponseData = <T>(data: CustomResponse<T>): T => {
-  if (!data.isSuccess || data.httpStatus !== 'OK') {
+  if (!data.isSuccess) {
     throw new Error(data.httpStatus || 'Request failed');
   }
   return data.response;
 };
 
 export const authService = {
-  login: async (username: string, password: string) => {
-    const response = await api.post<CustomResponse<{ token: string; user: User }>>('/auth/login', { username, password });
-    const data = extractResponseData(response.data);
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-    }
-    return data;
-  },
-  
-  register: async (username: string, password: string, email: string, name: string) => {
-    const response = await api.post<CustomResponse<any>>('/auth/register', { username, password, email, name });
+  login: async (email: string, password: string) => {
+    const response = await api.post<CustomResponse<TokenResponse>>('/api/v1/authentication/customers/login', { email, password });
     return extractResponseData(response.data);
   },
   
-  logout: () => {
-    localStorage.removeItem('token');
-  },
-  
-  getCurrentUser: async () => {
-    const response = await api.get<CustomResponse<User>>('/auth/me');
+  register: async (email: string, firstName: string, lastName: string, password: string, role: string) => {
+    const response = await api.post<CustomResponse<void>>('/api/v1/authentication/customers/register', { 
+      email, 
+      firstName, 
+      lastName, 
+      password,
+      role
+    });
     return extractResponseData(response.data);
   },
+  
+  logout: async (refreshToken: string) => {
+    const response = await api.post<CustomResponse<void>>('/api/v1/authentication/customers/logout', { refreshToken });
+    return extractResponseData(response.data);
+  },
+  
+  refreshToken: async (refreshToken: string) => {
+    const response = await api.post<CustomResponse<TokenResponse>>('/api/v1/authentication/customers/refresh-token', { refreshToken });
+    return extractResponseData(response.data);
+  },
+  
+  getCurrentCustomer: async () => {
+    const response = await api.get<CustomResponse<Customer>>('/api/v1/customers/current-customer');
+    return extractResponseData(response.data);
+  },
+  
+  validateToken: async (token: string) => {
+    await api.post('/customers/validate-token', null, {
+      params: { token }
+    });
+    return true;
+  },
+};
 
-  updateProfile: async (data: Partial<{name: string; email: string}>) => {
-    const response = await api.put<CustomResponse<User>>('/auth/profile', data);
-    return extractResponseData(response.data);
-  },
-
-  updatePassword: async (currentPassword: string, newPassword: string) => {
-    const response = await api.put<CustomResponse<any>>('/auth/password', {
-      currentPassword,
-      newPassword
+export const meteringPointsService = {
+  getCustomerMeteringPoints: async (customerId: string) => {
+    const response = await api.get<CustomResponse<MeteringPoint[]>>('/api/v1/consumptions/metering-points/customer', {
+      params: { customerId },
     });
     return extractResponseData(response.data);
   }
 };
 
-export const meteringPointsService = {
-  getUserMeteringPoints: async () => {
-    const response = await api.get<CustomResponse<MeteringPoint[]>>('/metering-points');
-    return extractResponseData(response.data);
-  },
-  
-  getMeteringPointById: async (id: string) => {
-    const response = await api.get<CustomResponse<MeteringPoint>>(`/metering-points/${id}`);
-    return extractResponseData(response.data);
-  },
-};
-
 export const consumptionService = {
-  getConsumptionByMeteringPoint: async (meteringPointId: string, year: number) => {
-    const response = await api.get<CustomResponse<ConsumptionData[]>>(`/consumption/${meteringPointId}`, {
-      params: { year },
-    });
-    return extractResponseData(response.data);
-  },
-  
-  getConsumptionForAllPoints: async (year: number) => {
-    const response = await api.get<CustomResponse<ConsumptionData[]>>('/consumption', {
-      params: { year },
-    });
-    return extractResponseData(response.data);
-  },
-  
-  getMarketPrices: async (startDate: string, endDate: string) => {
-    const response = await api.get<CustomResponse<any>>('/market-prices', {
-      params: { startDate, endDate },
+  getConsumptionByMeteringPoint: async (customerId: string, meteringPointId: string, year: number) => {
+    const response = await api.get<CustomResponse<ConsumptionData[]>>('/api/v1/consumptions/customer', {
+      params: { customerId, meteringPointId, year },
     });
     return extractResponseData(response.data);
   },
 };
 
-export const formatConsumptionData = (data: any[]): { month: number; consumption: number; price: number; cost: number }[] => {
-  return data.map(item => ({
-    month: item.month,
-    consumption: item.consumption,
-    price: item.price,
-    cost: item.cost,
-  }));
+export const formatConsumptionData = (data: ConsumptionData[]): { month: number; consumption: number; price: number; cost: number }[] => {
+  return data.map((item) => {
+    const date = new Date(item.consumptionTime);
+    return {
+      month: date.getMonth() + 1, 
+      consumption: parseFloat(item.amount),
+      price: parseFloat(item.monthlyCostEurPerMwhWithVat) / 10, 
+      cost: (parseFloat(item.amount) * parseFloat(item.monthlyCostEurPerMwhWithVat)) / 10, 
+    };
+  });
 };
-
-export default api;

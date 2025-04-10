@@ -19,7 +19,6 @@ const monthNames = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-// Types for the component props
 interface ConsumptionChartProps {
   data: {
     month: number;
@@ -30,7 +29,6 @@ interface ConsumptionChartProps {
   year: number;
 }
 
-// Chart type options
 type ChartType = 'line' | 'bar' | 'composed';
 
 const ConsumptionChart = ({ data, year }: ConsumptionChartProps) => {

@@ -5,37 +5,33 @@ import { meteringPointsService } from '../services/api';
 import Card from '../components/ui/Card';
 import Alert from '../components/ui/Alert';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { LightningBoltIcon, LocationMarkerIcon } from '@heroicons/react/outline';
-
-interface MeteringPoint {
-  id: string;
-  address: string;
-  totalConsumption?: number;
-  lastMonthConsumption?: number;
-}
+import ConsumptionOverview from '../components/dashboard/ConsumptionOverview';
+import { MeteringPoint } from '../models/models';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { customer } = useAuth();
   const [meteringPoints, setMeteringPoints] = useState<MeteringPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  
   useEffect(() => {
-    const fetchMeteringPoints = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await meteringPointsService.getUserMeteringPoints();
-        setMeteringPoints(data);
+ 
+        const meteringPoints = await meteringPointsService.getCustomerMeteringPoints(customer?.id || '');
+        setMeteringPoints(meteringPoints);
+                
         setError(null);
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to fetch metering points');
-        console.error('Error fetching metering points:', err);
+        setError(err.response?.data?.message || 'Failed to fetch data');
+        console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMeteringPoints();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -43,15 +39,19 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Welcome back, {user?.name}
+          Welcome back, {customer?.firstName || customer?.email || 'User'}
         </p>
       </div>
 
       {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
+
+      <div className="bg-white shadow rounded-lg p-6">
+        <ConsumptionOverview />
+      </div>
 
       <div>
         <h2 className="text-lg font-medium text-gray-900 mb-3">Your Metering Points</h2>
@@ -64,38 +64,30 @@ const Dashboard = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {meteringPoints.map((point) => (
-              <Link key={point.id} to={`/metering-points/${point.id}`}>
-                <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="flex items-start">
-                    <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                      <LightningBoltIcon className="h-6 w-6 text-primary-600" />
-                    </div>
-                    <div className="ml-4">
-                      <div className="flex items-center">
-                        <LocationMarkerIcon className="h-4 w-4 text-gray-400 mr-1" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-1">{point.address}</h3>
+            {meteringPoints.map((point) => {
+              return (
+                <Link key={point.meteringPointId} to={`/metering-points/${point.meteringPointId}`}>
+                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-start">
+                      <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <span className="text-green-600 font-bold">⚡</span>
                       </div>
-                      {point.totalConsumption !== undefined && (
-                        <p className="text-gray-500">
-                          Total: <span className="font-medium">{point.totalConsumption.toFixed(2)} kWh</span>
-                        </p>
-                      )}
-                      {point.lastMonthConsumption !== undefined && (
-                        <p className="text-gray-500">
-                          Last Month: <span className="font-medium">{point.lastMonthConsumption.toFixed(2)} kWh</span>
-                        </p>
-                      )}
+                      <div className="ml-4">
+                        <div className="flex items-center">
+                          <span className="text-gray-400 mr-1">📍</span>
+                          <h3 className="text-lg font-medium text-gray-900 mb-1">{point.address}</h3>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         )}
 
         <div className="mt-4">
-          <Link to="/metering-points" className="text-primary-600 hover:text-primary-700 font-medium">
+          <Link to="/metering-points" className="text-green-600 hover:text-green-700 font-medium">
             View all metering points →
           </Link>
         </div>
@@ -104,4 +96,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard
+export default Dashboard;

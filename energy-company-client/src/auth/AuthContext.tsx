@@ -1,57 +1,57 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { authService } from '../services/api';
-
-interface User {
-  id: string;
-  username: string;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: string;
-}
+import { Customer } from '../models/models';
 
 interface AuthContextType {
-  user: User | null;
+  customer: Customer | null;
   loading: boolean;
   error: string | null;
-  login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string, email: string, name: string) => Promise<void>;
-  logout: () => void;
-  updateProfile: (data: Partial<User>) => Promise<void>;
-  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, firstName: string, lastName: string, password: string, customerType: string) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshToken: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchCustomer = async () => {
       try {
-        if (localStorage.getItem('token')) {
-          const userData = await authService.getCurrentUser();
-          setUser(userData);
+        if (localStorage.getItem('accessToken')) {
+          const currentCustomer = await authService.getCurrentCustomer();
+          setCustomer(currentCustomer);
         }
       } catch (err) {
-        console.error('Failed to fetch user data:', err);
-        localStorage.removeItem('token');
+        console.error('Failed to fetch customer data:', err);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
+    fetchCustomer();
   }, []);
 
-  const login = async (username: string, password: string) => {
+
+  const login = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await authService.login(username, password);
-      setUser(data.user);
+      const data = await authService.login(email, password);
+      
+      localStorage.setItem('accessToken', data.accessToken);
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
+      
+      const currentCustomer = await authService.getCurrentCustomer();
+      setCustomer(currentCustomer);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');
       throw err;
@@ -60,11 +60,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const register = async (username: string, password: string, email: string, name: string) => {
+
+  const register = async (email: string, firstName: string, lastName: string, password: string, customerType: string) => {
     setLoading(true);
     setError(null);
     try {
-      await authService.register(username, password, email, name);
+      await authService.register(email, firstName, lastName, password, customerType);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');
       throw err;
@@ -73,54 +74,52 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const logout = () => {
-    authService.logout();
-    setUser(null);
-  };
 
-  const updateProfile = async (data: Partial<User>) => {
-    setLoading(true);
-    setError(null);
+  const logout = async () => {
     try {
-      const updatedUser = await authService.updateProfile(data);
-      setUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : null);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update profile');
-      throw err;
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        await authService.logout(refreshToken);
+      }
+    } catch (err) {
+      console.error('Error during logout:', err);
     } finally {
-      setLoading(false);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setCustomer(null);
     }
   };
 
-  const updatePassword = async (currentPassword: string, newPassword: string) => {
-    setLoading(true);
-    setError(null);
+  const refreshToken = async () => {
+    const refreshTokenValue = localStorage.getItem('refreshToken');
+    if (!refreshTokenValue) return;
+    
     try {
-      await authService.updatePassword(currentPassword, newPassword);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update password');
-      throw err;
-    } finally {
-      setLoading(false);
+      const data = await authService.refreshToken(refreshTokenValue);
+      localStorage.setItem('accessToken', data.accessToken);
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
+    } catch (err) {
+      console.error('Error refreshing token:', err);
+      logout();
     }
   };
 
   return (
     <AuthContext.Provider value={{ 
-      user, 
+      customer, 
       loading, 
       error, 
       login, 
       register, 
       logout,
-      updateProfile,
-      updatePassword
+      refreshToken
     }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

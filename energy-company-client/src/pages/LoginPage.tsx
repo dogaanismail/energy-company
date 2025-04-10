@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useForm } from 'react-hook-form';
 
 type LoginFormData = {
-  username: string;
+  email: string;
   password: string;
 };
 
@@ -24,7 +24,7 @@ const Login = () => {
     setError(null);
     
     try {
-      await login(data.username, data.password);
+      await login(data.email, data.password);
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
@@ -76,17 +76,17 @@ const Login = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="sr-only">Username</label>
+              <label htmlFor="email" className="sr-only">Email</label>
               <input
-                id="username"
+                id="email"
                 type="text"
-                autoComplete="username"
+                autoComplete="email"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                {...register("username", { required: "Username is required" })}
+                placeholder="Email address"
+                {...register("email", { required: "Email is required" })}
               />
-              {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
             <div>
