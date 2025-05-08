@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS customer (
     deleted_at TIMESTAMPTZ,
     deleted_by VARCHAR(255),
     deleted_reason VARCHAR(255),
-    version INTEGER NOT NULL DEFAULT 0
+    version smallint NOT NULL DEFAULT 0
 );
 
 CREATE UNIQUE INDEX idx_customer_email ON customer (email);

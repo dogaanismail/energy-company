@@ -57,7 +57,7 @@ public class BaseEntity {
             nullable = false,
             columnDefinition = "integer default 0"
     )
-    private Integer version;
+    private short version;
 
     @PrePersist
     public void prePersist() {

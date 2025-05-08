@@ -40,7 +40,7 @@ public class MeteringPointService {
                 .toList();
     }
 
-    public MeteringPointResponse mapToMeteringPointResponse(
+    private MeteringPointResponse mapToMeteringPointResponse(
             MeteringPoint meteringPoint) {
 
         return MeteringPointResponse.builder()

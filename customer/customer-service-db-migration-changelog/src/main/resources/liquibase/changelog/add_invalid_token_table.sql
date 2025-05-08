@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS invalid_token (
     deleted_at TIMESTAMPTZ,
     deleted_by VARCHAR(255),
     deleted_reason VARCHAR(255),
-    version INTEGER NOT NULL DEFAULT 0
+    version smallint NOT NULL DEFAULT 0
 );
 
 CREATE INDEX idx_invalid_token_token_id ON invalid_token (token_id);

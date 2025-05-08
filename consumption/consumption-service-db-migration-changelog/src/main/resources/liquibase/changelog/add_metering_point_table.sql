@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS metering_point (
     deleted_at TIMESTAMPTZ,
     deleted_by VARCHAR(255),
     deleted_reason VARCHAR(255),
-    version INTEGER NOT NULL DEFAULT 0
+    version smallint NOT NULL DEFAULT 0
 );
 
 CREATE INDEX idx_metering_point_customer_id ON metering_point (customer_id);

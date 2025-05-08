@@ -10,6 +10,8 @@ import org.energycompany.repository.CustomerRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CustomerLoginService {
@@ -20,20 +22,25 @@ public class CustomerLoginService {
 
     public Token login(LoginRequest loginRequest) {
 
-        CustomerEntity customerEntityFromDB = customerRepository
-                .findCustomerEntityByEmail(loginRequest.getEmail())
-                .orElseThrow(
-                        () -> new CustomerNotFoundException("Can't find with given email: "
-                                + loginRequest.getEmail())
-                );
+        Optional<CustomerEntity> optionalCustomerEntity = customerRepository
+                .findCustomerEntityByEmail(loginRequest.getEmail());
 
-        if (Boolean.FALSE.equals(passwordEncoder.matches(
+        if (optionalCustomerEntity.isEmpty()) {
+
+            throw new CustomerNotFoundException("Can't find with given email: "
+                    + loginRequest.getEmail());
+        }
+
+        CustomerEntity customerEntity = optionalCustomerEntity.get();
+
+        if (!passwordEncoder.matches(
                 loginRequest.getPassword(),
-                customerEntityFromDB.getPassword()))) {
+                customerEntity.getPassword())) {
+
             throw new PasswordNotValidException();
         }
 
-        return tokenService.generateToken(customerEntityFromDB.getClaims());
+        return tokenService.generateToken(customerEntity.getClaims());
     }
 
 }
