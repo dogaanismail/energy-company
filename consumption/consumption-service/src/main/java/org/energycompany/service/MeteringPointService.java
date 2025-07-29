@@ -1,6 +1,7 @@
 package org.energycompany.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.energycompany.entity.MeteringPoint;
 import org.energycompany.exception.MeteringPointNotFoundException;
 import org.energycompany.model.metering_point.MeteringPointResponse;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MeteringPointService {
 
     private final MeteringPointRepository meteringPointRepository;
@@ -24,6 +26,7 @@ public class MeteringPointService {
                 .findById(meteringPointId);
 
         if (optionalMeteringPoint.isEmpty()) {
+            log.error("MeteringPoint with id {} not found", meteringPointId);
             throw new MeteringPointNotFoundException("Metering point not found for id:" + meteringPointId);
         }
 
