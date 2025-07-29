@@ -3,6 +3,7 @@ package org.energycompany.utils;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -15,8 +16,8 @@ public class YearMonthUtils {
 
         try {
             return YearMonth.from(dateTime.atZone(ZoneId.of("Europe/Tallinn")));
-        } catch (DateTimeException | ZoneRulesException e) {
-            log.error("Error getting year month from date", e);
+        } catch (DateTimeException e) {
+            log.error("Error getting year month from date {}", dateTime, e);
             return null;
         }
     }
