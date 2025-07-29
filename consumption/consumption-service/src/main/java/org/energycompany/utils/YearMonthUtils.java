@@ -15,7 +15,7 @@ public class YearMonthUtils {
 
         try {
             return YearMonth.from(dateTime.atZone(ZoneId.of("Europe/Tallinn")));
-        } catch (Exception e) {
+        } catch (DateTimeException | ZoneRulesException e) {
             log.error("Error getting year month from date", e);
             return null;
         }
