@@ -13,7 +13,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.1"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
 
@@ -23,8 +23,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
 
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.1'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+    implementation "org.springframework.cloud:spring-cloud-starter-openfeign:${openFeignVersion}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${openApiVersion}"
 
     implementation project(':common')
 }
