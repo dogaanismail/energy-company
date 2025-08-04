@@ -100,4 +100,41 @@ Each microservice follows a modular structure:
 - Database migration application
 - Liquibase changelog scripts
 
+## 🚀 CI/CD Pipeline
+
+This project includes a comprehensive GitHub Actions CI/CD pipeline for automatic deployment to AWS:
+
+### 🔄 Workflows
+
+- **CI Workflow** (`ci.yml`): Builds and tests all services on pull requests
+- **Development Deployment** (`deploy-dev.yml`): Deploys to dev environment on PR updates
+- **Production Deployment** (`deploy-prod.yml`): Deploys to production on merge to main
+
+### 🏗️ Infrastructure
+
+The pipeline deploys to AWS using:
+- **ECS Fargate** for container orchestration
+- **ECR** for container registry
+- **RDS PostgreSQL** for databases
+- **Application Load Balancer** for traffic routing
+- **CloudWatch** for logging and monitoring
+
+### 📋 Setup
+
+1. **Prerequisites**: AWS account and configured GitHub secrets
+2. **Infrastructure**: Deploy using CloudFormation template or run setup script
+3. **Deployment**: Automatic on pull request and merge to main
+
+For detailed setup instructions, see [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### 🎯 Deployment Strategy
+
+Services are deployed in priority order:
+1. **Eureka Server** - Service discovery
+2. **Database Migrations** - Schema updates
+3. **Core Services** - Business logic services
+4. **Authentication Service** - Security layer
+5. **API Gateway** - External entry point
+6. **Frontend Client** - Web application
+
 
