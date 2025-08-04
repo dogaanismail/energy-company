@@ -42,3 +42,17 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### CI/CD Temporary Files ###
+task-definition.json
+task-definition-updated.json
+*.log
+
+### AWS ###
+.aws/credentials
+.aws/config
+
+### Environment Variables ###
+.env
+.env.local
+.env.production
