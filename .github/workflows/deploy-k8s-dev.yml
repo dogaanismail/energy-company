@@ -149,21 +149,34 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    # Build steps remain the same...
-    - name: Set up JDK ${{ env.JAVA_VERSION }}
+    - name: Build backend service
       if: matrix.service != 'energy-company-client'
-      uses: actions/setup-java@v4
-      with:
-        java-version: ${{ env.JAVA_VERSION }}
-        distribution: 'temurin'
+      run: |
+        chmod +x ./gradlew
+        # Convert service path from 'customer/customer-service' to ':customer:customer-service' for Gradle
+        PROJECT_PATH=$(echo "${{ steps.service-path.outputs.path }}" | sed 's/\\//:/g')
+        echo "Building specific project: $PROJECT_PATH"
+        ./gradlew "$PROJECT_PATH:build" -x test
 
-    - name: Build and push image to ECR
+    - name: Build frontend
+      if: matrix.service == 'energy-company-client'
+      working-directory: ./energy-company-client
+      run: |
+        npm ci
+        npm run build
+
+    - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REPOSITORY: energy-company-${{ matrix.service }}-dev
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        # Same ECR build and push logic
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        # Create ECR repository if it doesn't exist
+        aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_REGION 2>/dev/null || \
+        aws ecr create-repository --repository-name $ECR_REPOSITORY --region $AWS_REGION
+        
+        # Build and push Docker image using the correct service path
+        echo "Building Docker image from path: ${{ steps.service-path.outputs.path }}"
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ${{ steps.service-path.outputs.path }}
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     # The magic happens here - much simpler than ECS!
