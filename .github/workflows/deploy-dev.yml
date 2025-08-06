@@ -232,19 +232,23 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ${{ steps.service-path.outputs.path }}
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    - name: Update ECS service
+    - name: Deploy or Update ECS service
       env:
         ECR_REPOSITORY: energy-company-${{ matrix.service }}-dev
         IMAGE_TAG: ${{ github.sha }}
         ECS_SERVICE: ${{ matrix.service }}-dev
         ECS_TASK_DEFINITION: ${{ matrix.service }}-dev
       run: |
-        # Download current task definition
-        aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION \
-          --query taskDefinition > task-definition.json
-        
-        # Update the image in task definition
-        python3 - << EOF
+        # Check if service exists
+        if aws ecs describe-services --cluster $ECS_CLUSTER --services $ECS_SERVICE --region $AWS_REGION 2>/dev/null | grep -q "ACTIVE"; then
+          echo "Service $ECS_SERVICE exists - updating existing service"
+          
+          # Download current task definition
+          aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION \
+            --query taskDefinition > task-definition.json
+          
+          # Update the image in task definition
+          python3 - << EOF
         import json
         import sys
         
@@ -263,13 +267,67 @@ jobs:
         with open('task-definition-updated.json', 'w') as f:
             json.dump(task_def, f, indent=2)
         EOF
+          
+          # Register new task definition
+          aws ecs register-task-definition --cli-input-json file://task-definition-updated.json
+          
+          # Update the service
+          aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE \
+            --task-definition $ECS_TASK_DEFINITION
+            
+        else
+          echo "Service $ECS_SERVICE doesn't exist - creating new service"
+          
+          # Use the template task definition and update the image
+          TEMPLATE_FILE=".aws/task-definitions/${{ matrix.service }}-template.json"
+          
+          if [ ! -f "$TEMPLATE_FILE" ]; then
+            echo "ERROR: Template file $TEMPLATE_FILE not found"
+            exit 1
+          fi
+          
+          # Update the template with the new image
+          python3 - << EOF
+        import json
+        import sys
         
-        # Register new task definition
-        aws ecs register-task-definition --cli-input-json file://task-definition-updated.json
+        with open('$TEMPLATE_FILE', 'r') as f:
+            task_def = json.load(f)
         
-        # Update the service
-        aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE \
-          --task-definition $ECS_TASK_DEFINITION || echo "Service $ECS_SERVICE not found, skipping update"
+        # Update the image
+        for container in task_def['containerDefinitions']:
+            if container['name'] == '${{ matrix.service }}':
+                container['image'] = '$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG'
+        
+        with open('task-definition-new.json', 'w') as f:
+            json.dump(task_def, f, indent=2)
+        EOF
+          
+          # Register task definition
+          TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file://task-definition-new.json --query 'taskDefinition.taskDefinitionArn' --output text)
+          
+          # Get VPC configuration
+          VPC_ID=$(aws cloudformation describe-stacks --stack-name energy-company-dev --query 'Stacks[0].Outputs[?OutputKey==`VPCId`].OutputValue' --output text)
+          PRIVATE_SUBNET_1=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" "Name=tag:Name,Values=energy-company-private-subnet-1-dev" --query 'Subnets[0].SubnetId' --output text)
+          PRIVATE_SUBNET_2=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" "Name=tag:Name,Values=energy-company-private-subnet-2-dev" --query 'Subnets[0].SubnetId' --output text)
+          ECS_SECURITY_GROUP=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" "Name=tag:Name,Values=energy-company-ecs-sg-dev" --query 'SecurityGroups[0].GroupId' --output text)
+          
+          # Create the service
+          aws ecs create-service \
+            --cluster $ECS_CLUSTER \
+            --service-name $ECS_SERVICE \
+            --task-definition $TASK_DEF_ARN \
+            --desired-count 1 \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[$PRIVATE_SUBNET_1,$PRIVATE_SUBNET_2],securityGroups=[$ECS_SECURITY_GROUP],assignPublicIp=DISABLED}" \
+            --health-check-grace-period-seconds 300
+            
+          echo "Created new service $ECS_SERVICE"
+        fi
+        
+        # Wait for service to stabilize
+        echo "Waiting for service to stabilize..."
+        aws ecs wait services-stable --cluster $ECS_CLUSTER --services $ECS_SERVICE
 
   notify-deployment:
     name: Notify Deployment Status
@@ -343,3 +401,4 @@ jobs:
               body: body
             });
           }
+
