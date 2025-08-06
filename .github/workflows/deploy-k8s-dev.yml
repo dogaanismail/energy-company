@@ -40,8 +40,81 @@ jobs:
     - name: Detect changed services
       id: changes
       run: |
-        # Same change detection logic as before
-        # ... (keeping the existing logic)
+        # Get the base branch commit
+        BASE_SHA=$(git merge-base HEAD origin/${{ github.base_ref }})
+        
+        # Get list of changed files
+        CHANGED_FILES=$(git diff --name-only $BASE_SHA...HEAD)
+        echo "Changed files:"
+        echo "$CHANGED_FILES"
+        
+        # Initialize services array
+        SERVICES=()
+        
+        # Check each service for changes
+        if echo "$CHANGED_FILES" | grep -q "^api-gateway/"; then
+          SERVICES+=("api-gateway")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^authentication-service/"; then
+          SERVICES+=("authentication-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service/"; then
+          SERVICES+=("consumption-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service-db-migration/"; then
+          SERVICES+=("consumption-service-db-migration")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^customer/customer-service/"; then
+          SERVICES+=("customer-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^customer/customer-service-db-migration/"; then
+          SERVICES+=("customer-service-db-migration")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^elering-adapter/"; then
+          SERVICES+=("elering-adapter")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^eureka-server/"; then
+          SERVICES+=("eureka-server")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^energy-company-client/"; then
+          SERVICES+=("energy-company-client")
+        fi
+        
+        # Check for infrastructure or global changes
+        if echo "$CHANGED_FILES" | grep -q "^k8s/\|^\.github/workflows/\|^build\.gradle$\|^settings\.gradle$"; then
+          echo "Infrastructure or global changes detected - deploying all services"
+          SERVICES=("api-gateway" "authentication-service" "consumption-service" "consumption-service-db-migration" "customer-service" "customer-service-db-migration" "elering-adapter" "eureka-server" "energy-company-client")
+        fi
+        
+        # Convert array to JSON format compatible with GitHub Actions matrix
+        if [ ${#SERVICES[@]} -eq 0 ]; then
+          echo "services=[]" >> $GITHUB_OUTPUT
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+          echo "No services have changed"
+        else
+          # Create properly formatted JSON array
+          SERVICES_JSON="["
+          for i in "${!SERVICES[@]}"; do
+            if [ $i -gt 0 ]; then
+              SERVICES_JSON+=","
+            fi
+            SERVICES_JSON+="\"${SERVICES[$i]}\""
+          done
+          SERVICES_JSON+="]"
+          
+          echo "services=$SERVICES_JSON" >> $GITHUB_OUTPUT
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+          echo "Services to deploy: ${SERVICES[*]}"
+          echo "Generated JSON: $SERVICES_JSON"
+        fi
 
   build-and-deploy:
     name: Build and Deploy to Kubernetes
