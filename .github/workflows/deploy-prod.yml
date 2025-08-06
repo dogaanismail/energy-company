@@ -12,10 +12,121 @@ env:
   NODE_VERSION: '23'
 
 jobs:
-  deploy-infrastructure:
-    name: Deploy Infrastructure
+  detect-changes:
+    name: Detect Changed Services
     runs-on: ubuntu-latest
-    
+    outputs:
+      changed-services: ${{ steps.changes.outputs.services }}
+      has-changes: ${{ steps.changes.outputs.has-changes }}
+      deployment-order: ${{ steps.changes.outputs.deployment-order }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Detect changed services
+      id: changes
+      run: |
+        # Get the previous commit
+        PREV_SHA=$(git rev-parse HEAD~1)
+        
+        # Get list of changed files
+        CHANGED_FILES=$(git diff --name-only $PREV_SHA...HEAD)
+        echo "Changed files:"
+        echo "$CHANGED_FILES"
+        
+        # Initialize services array
+        SERVICES=()
+        
+        # Check each service for changes
+        if echo "$CHANGED_FILES" | grep -q "^api-gateway/"; then
+          SERVICES+=("api-gateway")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^authentication-service/"; then
+          SERVICES+=("authentication-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service/"; then
+          SERVICES+=("consumption-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service-db-migration/"; then
+          SERVICES+=("consumption-service-db-migration")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^customer/customer-service/"; then
+          SERVICES+=("customer-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^customer/customer-service-db-migration/"; then
+          SERVICES+=("customer-service-db-migration")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^elering-adapter/"; then
+          SERVICES+=("elering-adapter")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^eureka-server/"; then
+          SERVICES+=("eureka-server")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^energy-company-client/"; then
+          SERVICES+=("energy-company-client")
+        fi
+        
+        # Check for infrastructure changes
+        if echo "$CHANGED_FILES" | grep -q "^\.aws/\|^\.github/workflows/\|^docker-compose\|^build\.gradle$\|^settings\.gradle$"; then
+          echo "Infrastructure or global changes detected - deploying all services"
+          SERVICES=("eureka-server" "customer-service-db-migration" "consumption-service-db-migration" "customer-service" "consumption-service" "elering-adapter" "authentication-service" "api-gateway" "energy-company-client")
+        fi
+        
+        # Create deployment order based on priorities
+        PRIORITY_1=()  # eureka-server
+        PRIORITY_2=()  # db migrations
+        PRIORITY_3=()  # core services
+        PRIORITY_4=()  # authentication
+        PRIORITY_5=()  # api-gateway
+        PRIORITY_6=()  # frontend
+        
+        for service in "${SERVICES[@]}"; do
+          case $service in
+            "eureka-server") PRIORITY_1+=("$service") ;;
+            "*db-migration") PRIORITY_2+=("$service") ;;
+            "customer-service"|"consumption-service"|"elering-adapter") PRIORITY_3+=("$service") ;;
+            "authentication-service") PRIORITY_4+=("$service") ;;
+            "api-gateway") PRIORITY_5+=("$service") ;;
+            "energy-company-client") PRIORITY_6+=("$service") ;;
+          esac
+        done
+        
+        # Combine in deployment order
+        ORDERED_SERVICES=(${PRIORITY_1[@]} ${PRIORITY_2[@]} ${PRIORITY_3[@]} ${PRIORITY_4[@]} ${PRIORITY_5[@]} ${PRIORITY_6[@]})
+        
+        # Convert to JSON
+        if [ ${#SERVICES[@]} -eq 0 ]; then
+          echo "services=[]" >> $GITHUB_OUTPUT
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+          echo "deployment-order=[]" >> $GITHUB_OUTPUT
+          echo "No services have changed"
+        else
+          SERVICES_JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -R . | jq -s .)
+          ORDERED_JSON=$(printf '%s\n' "${ORDERED_SERVICES[@]}" | jq -R . | jq -s .)
+          echo "services=$SERVICES_JSON" >> $GITHUB_OUTPUT
+          echo "deployment-order=$ORDERED_JSON" >> $GITHUB_OUTPUT
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+          echo "Services to deploy: ${SERVICES[*]}"
+          echo "Deployment order: ${ORDERED_SERVICES[*]}"
+        fi
+
+  deploy-infrastructure:
+    name: Deploy Infrastructure (if changed)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.changed-services, 'infrastructure') || needs.detect-changes.outputs.has-changes == 'false'
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -27,62 +138,20 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Deploy databases
+    - name: Deploy infrastructure if needed
       run: |
-        # Create RDS PostgreSQL instances if they don't exist
-        echo "Checking for customer database..."
-        if ! aws rds describe-db-instances --db-instance-identifier energy-company-customer-prod --region $AWS_REGION 2>/dev/null; then
-          echo "Creating customer database..."
-          # This would create the RDS instance - simplified for demo
-          echo "Customer DB creation would happen here"
-        fi
-        
-        echo "Checking for consumption database..."
-        if ! aws rds describe-db-instances --db-instance-identifier energy-company-consumption-prod --region $AWS_REGION 2>/dev/null; then
-          echo "Creating consumption database..."
-          # This would create the RDS instance - simplified for demo
-          echo "Consumption DB creation would happen here"
-        fi
+        echo "Infrastructure deployment would happen here if .aws/ files changed"
+        # This could deploy your CloudFormation stack if infrastructure files changed
 
   build-and-deploy:
-    name: Build and Deploy to Production
+    name: Build and Deploy Changed Services
     runs-on: ubuntu-latest
-    needs: deploy-infrastructure
+    needs: [detect-changes, deploy-infrastructure]
+    if: needs.detect-changes.outputs.has-changes == 'true'
 
     strategy:
       matrix:
-        service:
-          - name: eureka-server
-            port: 8761
-            priority: 1
-          - name: api-gateway
-            port: 4000
-            priority: 5
-          - name: authentication-service
-            port: 2000
-            priority: 4
-          - name: customer-service-db-migration
-            path: customer/customer-service-db-migration
-            port: 7005
-            priority: 2
-          - name: customer-service
-            path: customer/customer-service
-            port: 5007
-            priority: 3
-          - name: consumption-service-db-migration
-            path: consumption/consumption-service-db-migration
-            port: 7006
-            priority: 2
-          - name: consumption-service
-            path: consumption/consumption-service
-            port: 5006
-            priority: 3
-          - name: elering-adapter
-            port: 5005
-            priority: 3
-          - name: energy-company-client
-            port: 5173
-            priority: 6
+        service: ${{ fromJson(needs.detect-changes.outputs.deployment-order) }}
 
     steps:
     - name: Checkout code
@@ -286,20 +355,20 @@ jobs:
   notify-success:
     name: Notify Deployment Success
     runs-on: ubuntu-latest
-    needs: [deploy-services, run-health-checks]
-    if: success()
+    needs: [detect-changes, build-and-deploy]
+    if: success() && needs.detect-changes.outputs.has-changes == 'true'
 
     steps:
     - name: Send success notification
       run: |
+        SERVICES="${{ join(fromJson(needs.detect-changes.outputs.changed-services), ', ') }}"
         echo "🎉 Production deployment successful!"
+        echo "Services deployed: $SERVICES"
         echo "Commit: ${{ github.sha }}"
-        echo "All services have been deployed and are healthy."
         
-        # Here you could send notifications to Slack, email, etc.
-        # Example: Send to Slack webhook
+        # Send to Slack, email, etc.
         # curl -X POST -H 'Content-type: application/json' \
-        #   --data '{"text":"🚀 Energy Company production deployment successful!"}' \
+        #   --data "{\"text\":\"🚀 Energy Company production deployment successful!\nServices: $SERVICES\"}" \
         #   ${{ secrets.SLACK_WEBHOOK_URL }}
 
   rollback-on-failure:

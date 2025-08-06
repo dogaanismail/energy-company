@@ -13,36 +13,97 @@ env:
   NODE_VERSION: '23'
 
 jobs:
-  build-and-deploy:
-    name: Build and Deploy to Development
+  detect-changes:
+    name: Detect Changed Services
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
+    outputs:
+      changed-services: ${{ steps.changes.outputs.services }}
+      has-changes: ${{ steps.changes.outputs.has-changes }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Detect changed services
+      id: changes
+      run: |
+        # Get the base branch commit
+        BASE_SHA=$(git merge-base HEAD origin/${{ github.base_ref }})
+        
+        # Get list of changed files
+        CHANGED_FILES=$(git diff --name-only $BASE_SHA...HEAD)
+        echo "Changed files:"
+        echo "$CHANGED_FILES"
+        
+        # Initialize services array
+        SERVICES=()
+        
+        # Check each service for changes
+        if echo "$CHANGED_FILES" | grep -q "^api-gateway/"; then
+          SERVICES+=("api-gateway")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^authentication-service/"; then
+          SERVICES+=("authentication-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service/"; then
+          SERVICES+=("consumption-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service-db-migration/"; then
+          SERVICES+=("consumption-service-db-migration")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^customer/customer-service/"; then
+          SERVICES+=("customer-service")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^customer/customer-service-db-migration/"; then
+          SERVICES+=("customer-service-db-migration")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^elering-adapter/"; then
+          SERVICES+=("elering-adapter")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^eureka-server/"; then
+          SERVICES+=("eureka-server")
+        fi
+        
+        if echo "$CHANGED_FILES" | grep -q "^energy-company-client/"; then
+          SERVICES+=("energy-company-client")
+        fi
+        
+        # Check for infrastructure changes
+        if echo "$CHANGED_FILES" | grep -q "^\.aws/\|^\.github/workflows/\|^docker-compose\|^build\.gradle$\|^settings\.gradle$"; then
+          echo "Infrastructure or global changes detected - deploying all services"
+          SERVICES=("api-gateway" "authentication-service" "consumption-service" "consumption-service-db-migration" "customer-service" "customer-service-db-migration" "elering-adapter" "eureka-server" "energy-company-client")
+        fi
+        
+        # Convert array to JSON
+        if [ ${#SERVICES[@]} -eq 0 ]; then
+          echo "services=[]" >> $GITHUB_OUTPUT
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+          echo "No services have changed"
+        else
+          SERVICES_JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -R . | jq -s .)
+          echo "services=$SERVICES_JSON" >> $GITHUB_OUTPUT
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+          echo "Services to deploy: ${SERVICES[*]}"
+        fi
+
+  build-and-deploy:
+    name: Build and Deploy Changed Services
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has-changes == 'true'
 
     strategy:
       matrix:
-        service:
-          - name: api-gateway
-            port: 4000
-          - name: authentication-service
-            port: 2000
-          - name: consumption-service
-            path: consumption/consumption-service
-            port: 5006
-          - name: consumption-service-db-migration
-            path: consumption/consumption-service-db-migration
-            port: 7006
-          - name: customer-service
-            path: customer/customer-service
-            port: 5007
-          - name: customer-service-db-migration
-            path: customer/customer-service-db-migration
-            port: 7005
-          - name: elering-adapter
-            port: 5005
-          - name: eureka-server
-            port: 8761
-          - name: energy-company-client
-            port: 5173
+        service: ${{ fromJson(needs.detect-changes.outputs.changed-services) }}
 
     steps:
     - name: Checkout code
@@ -162,7 +223,7 @@ jobs:
   notify-deployment:
     name: Notify Deployment Status
     runs-on: ubuntu-latest
-    needs: build-and-deploy
+    needs: [detect-changes, build-and-deploy]
     if: always()
 
     steps:
@@ -170,6 +231,44 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
+          const changedServices = ${{ needs.detect-changes.outputs.changed-services }};
+          const hasChanges = '${{ needs.detect-changes.outputs.has-changes }}' === 'true';
+          const deploymentStatus = '${{ needs.build-and-deploy.result }}';
+          
+          let body;
+          
+          if (!hasChanges) {
+            body = `## 🔍 No Services Changed
+            
+            **Status**: ⚪ No Deployment Needed
+            **Commit**: \`${{ github.sha }}\`
+            **Environment**: Development
+            
+            No microservices were modified in this PR, so no deployment is necessary.
+            
+            ---
+            *Smart deployment: Only changed services are deployed*`;
+          } else {
+            const status = deploymentStatus === 'success' ? '✅ Successful' : '❌ Failed';
+            const servicesList = changedServices.map(s => `• ${s}`).join('\n            ');
+            
+            body = `## 🚀 Development Deployment Status
+            
+            **Status**: ${status}
+            **Commit**: \`${{ github.sha }}\`
+            **Environment**: Development
+            **Services Deployed**:
+            ${servicesList}
+            
+            ${status === '✅ Successful' ? 
+              '🎉 Changed services have been successfully deployed to the development environment!' :
+              '⚠️ Deployment failed. Please check the workflow logs for details.'}
+            
+            ---
+            *Smart deployment: Only changed services are deployed*`;
+          }
+          
+          // Post or update comment logic (same as before)
           const { data: comments } = await github.rest.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
@@ -177,21 +276,6 @@ jobs:
           });
           
           const botComment = comments.find(comment => comment.user.login === 'github-actions[bot]' && comment.body.includes('🚀 Development Deployment'));
-          
-          const deploymentStatus = '${{ needs.build-and-deploy.result }}' === 'success' ? '✅ Successful' : '❌ Failed';
-          
-          const body = `## 🚀 Development Deployment Status
-          
-          **Status**: ${deploymentStatus}
-          **Commit**: \`${{ github.sha }}\`
-          **Environment**: Development
-          
-          ${deploymentStatus === '✅ Successful' ? 
-            '🎉 Your changes have been successfully deployed to the development environment!' :
-            '⚠️ Deployment failed. Please check the workflow logs for details.'}
-          
-          ---
-          *This comment will be updated on subsequent deployments*`;
           
           if (botComment) {
             await github.rest.issues.updateComment({
