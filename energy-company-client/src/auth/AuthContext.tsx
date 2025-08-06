@@ -60,7 +60,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-
   const register = async (email: string, firstName: string, lastName: string, password: string, customerType: string) => {
     setLoading(true);
     setError(null);
@@ -73,7 +72,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(false);
     }
   };
-
 
   const logout = async () => {
     try {
@@ -102,7 +100,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     } catch (err) {
       console.error('Error refreshing token:', err);
-      logout();
+      await logout();
     }
   };
 
