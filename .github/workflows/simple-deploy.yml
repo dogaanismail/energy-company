@@ -1,0 +1,149 @@
+name: Ultra-Simple Deploy to Development
+
+on:
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: read
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+  ECS_CLUSTER: energy-company-simple
+  SERVICE_NAME: eureka-server-simple
+  DOCKER_IMAGE_NAME: energy-company-eureka-server-simple
+  TASK_DEFINITION_FAMILY: eureka-server-simple
+
+jobs:
+  simple-deploy:
+    name: Simple Deploy (Eureka Server)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Setup Default Infrastructure
+      id: default-infra
+      run: |
+        # Get default VPC (every AWS account has one)
+        DEFAULT_VPC=$(aws ec2 describe-vpcs --filters "Name=is-default,Values=true" --query 'Vpcs[0].VpcId' --output text --region $AWS_REGION)
+        echo "🔍 Using Default VPC: $DEFAULT_VPC"
+        
+        # Get any two available subnets from default VPC
+        DEFAULT_SUBNETS=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$DEFAULT_VPC" --query 'Subnets[0:2].SubnetId' --output text --region $AWS_REGION | tr '\t' ',')
+        echo "🔍 Using Default Subnets: $DEFAULT_SUBNETS"
+        
+        # Get default security group
+        DEFAULT_SG=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=$DEFAULT_VPC" "Name=group-name,Values=default" --query 'SecurityGroups[0].GroupId' --output text --region $AWS_REGION)
+        echo "🔍 Using Default Security Group: $DEFAULT_SG"
+        
+        # Allow all traffic in the default security group for testing
+        aws ec2 authorize-security-group-ingress --group-id $DEFAULT_SG --protocol -1 --port -1 --cidr 0.0.0.0/0 --region $AWS_REGION 2>/dev/null || echo "Ingress rule already exists"
+        
+        # Create simple ECS cluster if it doesn't exist
+        aws ecs create-cluster --cluster-name ${{ env.ECS_CLUSTER }} --region $AWS_REGION 2>/dev/null || echo "Cluster already exists"
+        
+        echo "subnets=$DEFAULT_SUBNETS" >> $GITHUB_OUTPUT
+        echo "security_group=$DEFAULT_SG" >> $GITHUB_OUTPUT
+
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and Push Docker Image
+      run: |
+        cd eureka-server
+        chmod +x ./gradlew
+        ./gradlew clean build -x test --no-daemon
+        
+        aws ecr create-repository --repository-name ${{ env.DOCKER_IMAGE_NAME }} --region $AWS_REGION 2>/dev/null || echo "Repository already exists"
+        
+        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest .
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+
+    - name: Deploy to ECS
+      run: |
+        # Create inline task definition
+        TASK_DEF_JSON=$(cat <<EOF
+        {
+          "family": "${{ env.TASK_DEFINITION_FAMILY }}",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+          "containerDefinitions": [
+            {
+              "name": "eureka-server",
+              "image": "${{ env.ECR_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest",
+              "portMappings": [{"containerPort": 8761, "protocol": "tcp"}],
+              "essential": true,
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/${{ env.SERVICE_NAME }}",
+                  "awslogs-region": "${{ env.AWS_REGION }}",
+                  "awslogs-stream-prefix": "ecs",
+                  "awslogs-create-group": "true"
+                }
+              }
+            }
+          ]
+        }
+        EOF
+        )
+        
+        aws ecs register-task-definition --cli-input-json "$TASK_DEF_JSON" --region $AWS_REGION
+        
+        SUBNETS_ARRAY="\"$(echo "${{ steps.default-infra.outputs.subnets }}" | sed 's/,/","/g')\""
+        
+        # Create or update service
+        aws ecs create-service \
+          --cluster ${{ env.ECS_CLUSTER }} \
+          --service-name ${{ env.SERVICE_NAME }} \
+          --task-definition ${{ env.TASK_DEFINITION_FAMILY }} \
+          --desired-count 1 \
+          --launch-type FARGATE \
+          --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS_ARRAY],securityGroups=[\"${{ steps.default-infra.outputs.security_group }}\"],assignPublicIp=ENABLED}" \
+          --force-new-deployment \
+          --region $AWS_REGION 2>/dev/null || \
+        aws ecs update-service \
+          --cluster ${{ env.ECS_CLUSTER }} \
+          --service ${{ env.SERVICE_NAME }} \
+          --task-definition ${{ env.TASK_DEFINITION_FAMILY }} \
+          --force-new-deployment \
+          --region $AWS_REGION
+          
+        echo "✅ Eureka Server deployment initiated!"
+
+    - name: Get Public IP and Display URL
+      run: |
+        echo "⏳ Waiting for task to start and get a public IP..."
+        sleep 60
+        
+        TASK_ARN=$(aws ecs list-tasks --cluster ${{ env.ECS_CLUSTER }} --service-name ${{ env.SERVICE_NAME }} --query 'taskArns[0]' --output text --region $AWS_REGION)
+        
+        if [ "$TASK_ARN" == "None" ]; then
+          echo "❌ Task not found. Deployment may have failed."
+          exit 1
+        fi
+        
+        ENI_ID=$(aws ecs describe-tasks --cluster ${{ env.ECS_CLUSTER }} --tasks $TASK_ARN --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' --output text --region $AWS_REGION)
+        PUBLIC_IP=$(aws ec2 describe-network-interfaces --network-interface-ids $ENI_ID --query 'NetworkInterfaces[0].Association.PublicIp' --output text --region $AWS_REGION)
+        
+        if [ -z "$PUBLIC_IP" ] || [ "$PUBLIC_IP" == "None" ]; then
+          echo "❌ Could not retrieve public IP. Please check the ECS service events in the AWS console."
+          exit 1
+        fi
+        
+        echo "🎉 Eureka Server is running at: http://$PUBLIC_IP:8761"
