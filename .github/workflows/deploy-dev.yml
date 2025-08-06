@@ -181,14 +181,14 @@ jobs:
         esac
 
     - name: Set up JDK ${{ env.JAVA_VERSION }}
-      if: matrix.service.name != 'energy-company-client'
+      if: matrix.service != 'energy-company-client'
       uses: actions/setup-java@v4
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: 'temurin'
 
     - name: Set up Node.js ${{ env.NODE_VERSION }}
-      if: matrix.service.name == 'energy-company-client'
+      if: matrix.service == 'energy-company-client'
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
@@ -196,7 +196,7 @@ jobs:
         cache-dependency-path: energy-company-client/package-lock.json
 
     - name: Cache Gradle packages
-      if: matrix.service.name != 'energy-company-client'
+      if: matrix.service != 'energy-company-client'
       uses: actions/cache@v4
       with:
         path: |
@@ -207,13 +207,13 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: Build backend service
-      if: matrix.service.name != 'energy-company-client'
+      if: matrix.service != 'energy-company-client'
       run: |
         chmod +x ./gradlew
         ./gradlew clean build -x test --no-daemon
 
     - name: Build frontend
-      if: matrix.service.name == 'energy-company-client'
+      if: matrix.service == 'energy-company-client'
       working-directory: ./energy-company-client
       run: |
         npm ci
@@ -221,7 +221,7 @@ jobs:
 
     - name: Build, tag, and push image to Amazon ECR
       env:
-        ECR_REPOSITORY: energy-company-${{ matrix.service.name }}-dev
+        ECR_REPOSITORY: energy-company-${{ matrix.service }}-dev
         IMAGE_TAG: ${{ github.sha }}
       run: |
         # Create ECR repository if it doesn't exist
@@ -234,10 +234,10 @@ jobs:
 
     - name: Update ECS service
       env:
-        ECR_REPOSITORY: energy-company-${{ matrix.service.name }}-dev
+        ECR_REPOSITORY: energy-company-${{ matrix.service }}-dev
         IMAGE_TAG: ${{ github.sha }}
-        ECS_SERVICE: ${{ matrix.service.name }}-dev
-        ECS_TASK_DEFINITION: ${{ matrix.service.name }}-dev
+        ECS_SERVICE: ${{ matrix.service }}-dev
+        ECS_TASK_DEFINITION: ${{ matrix.service }}-dev
       run: |
         # Download current task definition
         aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION \
@@ -257,7 +257,7 @@ jobs:
         
         # Update the image
         for container in task_def['containerDefinitions']:
-            if container['name'] == '${{ matrix.service.name }}':
+            if container['name'] == '${{ matrix.service }}':
                 container['image'] = '$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG'
         
         with open('task-definition-updated.json', 'w') as f:
