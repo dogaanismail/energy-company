@@ -381,66 +381,38 @@ jobs:
         ECR_REPOSITORY="energy-company-${{ matrix.service }}-dev"
         IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}"
         
-        # Set the correct container port and environment variables based on service
+        # Set the correct container port based on service
         case "${{ matrix.service }}" in
           "eureka-server")
             CONTAINER_PORT=8761
-            ENV_VARS='[]'
             ;;
           "api-gateway")
             CONTAINER_PORT=4000
-            ENV_VARS='[
-              {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
-            ]'
             ;;
           "consumption-service")
             CONTAINER_PORT=5006
-            ENV_VARS='[
-              {"name": "DB_SERVICE_URL", "value": "'${{ secrets.CONSUMPTION_DB_URL }}'"},
-              {"name": "DB_SERVICE_USERNAME", "value": "'${{ secrets.CONSUMPTION_DB_USERNAME }}'"},
-              {"name": "DB_SERVICE_PASSWORD", "value": "'${{ secrets.CONSUMPTION_DB_PASSWORD }}'"},
-              {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
-            ]'
             ;;
           "consumption-service-db-migration")
             CONTAINER_PORT=7006
-            ENV_VARS='[
-              {"name": "DB_SERVICE_URL", "value": "'${{ secrets.CONSUMPTION_DB_URL }}'"},
-              {"name": "DB_SERVICE_USERNAME", "value": "'${{ secrets.CONSUMPTION_DB_USERNAME }}'"},
-              {"name": "DB_SERVICE_PASSWORD", "value": "'${{ secrets.CONSUMPTION_DB_PASSWORD }}'"}
-            ]'
             ;;
           "customer-service")
             CONTAINER_PORT=8080
-            ENV_VARS='[
-              {"name": "DB_SERVICE_URL", "value": "'${{ secrets.CUSTOMER_DB_URL }}'"},
-              {"name": "DB_SERVICE_USERNAME", "value": "'${{ secrets.CUSTOMER_DB_USERNAME }}'"},
-              {"name": "DB_SERVICE_PASSWORD", "value": "'${{ secrets.CUSTOMER_DB_PASSWORD }}'"},
-              {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
-            ]'
             ;;
           "customer-service-db-migration")
             CONTAINER_PORT=7005
-            ENV_VARS='[
-              {"name": "DB_SERVICE_URL", "value": "'${{ secrets.CUSTOMER_DB_URL }}'"},
-              {"name": "DB_SERVICE_USERNAME", "value": "'${{ secrets.CUSTOMER_DB_USERNAME }}'"},
-              {"name": "DB_SERVICE_PASSWORD", "value": "'${{ secrets.CUSTOMER_DB_PASSWORD }}'"}
-            ]'
             ;;
           "energy-company-client")
             CONTAINER_PORT=5173
-            ENV_VARS='[]'
             ;;
           *)
             CONTAINER_PORT=8080
-            ENV_VARS='[
-              {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
-            ]'
             ;;
         esac
         
-        # Create a task definition with proper environment variables
-        cat > "/tmp/${TASK_DEFINITION_FAMILY}.json" << EOF
+        # Create task definition JSON based on service type
+        if [[ "${{ matrix.service }}" == "consumption-service" ]]; then
+          # Consumption service with database environment variables
+          cat > "/tmp/${TASK_DEFINITION_FAMILY}.json" << 'EOF'
         {
           "family": "$TASK_DEFINITION_FAMILY",
           "networkMode": "awsvpc",
@@ -453,7 +425,12 @@ jobs:
               "name": "${{ matrix.service }}",
               "image": "$IMAGE_URI",
               "essential": true,
-              "environment": $ENV_VARS,
+              "environment": [
+                {"name": "DB_SERVICE_URL", "value": "${{ secrets.CONSUMPTION_DB_URL }}"},
+                {"name": "DB_SERVICE_USERNAME", "value": "${{ secrets.CONSUMPTION_DB_USERNAME }}"},
+                {"name": "DB_SERVICE_PASSWORD", "value": "${{ secrets.CONSUMPTION_DB_PASSWORD }}"},
+                {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
+              ],
               "portMappings": [
                 {
                   "containerPort": $CONTAINER_PORT,
@@ -472,6 +449,198 @@ jobs:
           ]
         }
         EOF
+        elif [[ "${{ matrix.service }}" == "consumption-service-db-migration" ]]; then
+          # Consumption DB migration service
+          cat > "/tmp/${TASK_DEFINITION_FAMILY}.json" << 'EOF'
+        {
+          "family": "$TASK_DEFINITION_FAMILY",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+          "containerDefinitions": [
+            {
+              "name": "${{ matrix.service }}",
+              "image": "$IMAGE_URI",
+              "essential": true,
+              "environment": [
+                {"name": "DB_SERVICE_URL", "value": "${{ secrets.CONSUMPTION_DB_URL }}"},
+                {"name": "DB_SERVICE_USERNAME", "value": "${{ secrets.CONSUMPTION_DB_USERNAME }}"},
+                {"name": "DB_SERVICE_PASSWORD", "value": "${{ secrets.CONSUMPTION_DB_PASSWORD }}"}
+              ],
+              "portMappings": [
+                {
+                  "containerPort": $CONTAINER_PORT,
+                  "protocol": "tcp"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/${{ matrix.service }}-dev",
+                  "awslogs-region": "$AWS_REGION",
+                  "awslogs-stream-prefix": "ecs"
+                }
+              }
+            }
+          ]
+        }
+        EOF
+        elif [[ "${{ matrix.service }}" == "customer-service" ]]; then
+          # Customer service with database environment variables
+          cat > "/tmp/${TASK_DEFINITION_FAMILY}.json" << 'EOF'
+        {
+          "family": "$TASK_DEFINITION_FAMILY",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+          "containerDefinitions": [
+            {
+              "name": "${{ matrix.service }}",
+              "image": "$IMAGE_URI",
+              "essential": true,
+              "environment": [
+                {"name": "DB_SERVICE_URL", "value": "${{ secrets.CUSTOMER_DB_URL }}"},
+                {"name": "DB_SERVICE_USERNAME", "value": "${{ secrets.CUSTOMER_DB_USERNAME }}"},
+                {"name": "DB_SERVICE_PASSWORD", "value": "${{ secrets.CUSTOMER_DB_PASSWORD }}"},
+                {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
+              ],
+              "portMappings": [
+                {
+                  "containerPort": $CONTAINER_PORT,
+                  "protocol": "tcp"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/${{ matrix.service }}-dev",
+                  "awslogs-region": "$AWS_REGION",
+                  "awslogs-stream-prefix": "ecs"
+                }
+              }
+            }
+          ]
+        }
+        EOF
+        elif [[ "${{ matrix.service }}" == "customer-service-db-migration" ]]; then
+          # Customer DB migration service
+          cat > "/tmp/${TASK_DEFINITION_FAMILY}.json" << 'EOF'
+        {
+          "family": "$TASK_DEFINITION_FAMILY",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+          "containerDefinitions": [
+            {
+              "name": "${{ matrix.service }}",
+              "image": "$IMAGE_URI",
+              "essential": true,
+              "environment": [
+                {"name": "DB_SERVICE_URL", "value": "${{ secrets.CUSTOMER_DB_URL }}"},
+                {"name": "DB_SERVICE_USERNAME", "value": "${{ secrets.CUSTOMER_DB_USERNAME }}"},
+                {"name": "DB_SERVICE_PASSWORD", "value": "${{ secrets.CUSTOMER_DB_PASSWORD }}"}
+              ],
+              "portMappings": [
+                {
+                  "containerPort": $CONTAINER_PORT,
+                  "protocol": "tcp"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/${{ matrix.service }}-dev",
+                  "awslogs-region": "$AWS_REGION",
+                  "awslogs-stream-prefix": "ecs"
+                }
+              }
+            }
+          ]
+        }
+        EOF
+        elif [[ "${{ matrix.service }}" == "api-gateway" ]]; then
+          # API Gateway with Eureka configuration
+          cat > "/tmp/${TASK_DEFINITION_FAMILY}.json" << 'EOF'
+        {
+          "family": "$TASK_DEFINITION_FAMILY",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+          "containerDefinitions": [
+            {
+              "name": "${{ matrix.service }}",
+              "image": "$IMAGE_URI",
+              "essential": true,
+              "environment": [
+                {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
+              ],
+              "portMappings": [
+                {
+                  "containerPort": $CONTAINER_PORT,
+                  "protocol": "tcp"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/${{ matrix.service }}-dev",
+                  "awslogs-region": "$AWS_REGION",
+                  "awslogs-stream-prefix": "ecs"
+                }
+              }
+            }
+          ]
+        }
+        EOF
+        else
+          # Default configuration for other services
+          cat > "/tmp/${TASK_DEFINITION_FAMILY}.json" << 'EOF'
+        {
+          "family": "$TASK_DEFINITION_FAMILY",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+          "containerDefinitions": [
+            {
+              "name": "${{ matrix.service }}",
+              "image": "$IMAGE_URI",
+              "essential": true,
+              "environment": [],
+              "portMappings": [
+                {
+                  "containerPort": $CONTAINER_PORT,
+                  "protocol": "tcp"
+                }
+              ],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/${{ matrix.service }}-dev",
+                  "awslogs-region": "$AWS_REGION",
+                  "awslogs-stream-prefix": "ecs"
+                }
+              }
+            }
+          ]
+        }
+        EOF
+        fi
+        
+        # Replace variables in the JSON file
+        sed -i "s/\$TASK_DEFINITION_FAMILY/$TASK_DEFINITION_FAMILY/g" "/tmp/${TASK_DEFINITION_FAMILY}.json"
+        sed -i "s/\$IMAGE_URI/$IMAGE_URI/g" "/tmp/${TASK_DEFINITION_FAMILY}.json"
+        sed -i "s/\$CONTAINER_PORT/$CONTAINER_PORT/g" "/tmp/${TASK_DEFINITION_FAMILY}.json"
+        sed -i "s/\$AWS_REGION/$AWS_REGION/g" "/tmp/${TASK_DEFINITION_FAMILY}.json"
         
         # Create log group
         aws logs create-log-group --log-group-name "/ecs/${{ matrix.service }}-dev" --region $AWS_REGION 2>/dev/null || echo "Log group already exists"
