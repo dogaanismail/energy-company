@@ -60,15 +60,22 @@ jobs:
         echo "subnets=$DEFAULT_SUBNETS" >> $GITHUB_OUTPUT
         echo "security_group=$DEFAULT_SG" >> $GITHUB_OUTPUT
 
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      if: matrix.service != 'energy-company-client'
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+
     - name: Login to Amazon ECR
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Build service with Gradle
       run: |
-        echo "Building Eureka Server with Gradle..."
-        cd eureka-server
         chmod +x ./gradlew
-        ./gradlew build --no-daemon -x test
+        ./gradlew clean build -x test --no-daemon
 
     - name: Build and Push Docker Image
       run: |
