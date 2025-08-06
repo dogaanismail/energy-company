@@ -105,38 +105,84 @@ setup_iam_roles() {
     print_header "Setting up IAM Roles"
 
     print_step "Creating ECS Task Execution Role"
-    aws iam create-role --role-name ecsTaskExecutionRole \
-        --assume-role-policy-document '{
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Principal": {
-                        "Service": "ecs-tasks.amazonaws.com"
-                    },
-                    "Action": "sts:AssumeRole"
-                }
-            ]
-        }' 2>/dev/null || print_info "Role ecsTaskExecutionRole already exists"
+    # Create role with timeout and proper error handling
+    if aws iam get-role --role-name ecsTaskExecutionRole &>/dev/null; then
+        print_info "Role ecsTaskExecutionRole already exists"
+    else
+        aws iam create-role --role-name ecsTaskExecutionRole \
+            --assume-role-policy-document '{
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "ecs-tasks.amazonaws.com"
+                        },
+                        "Action": "sts:AssumeRole"
+                    }
+                ]
+            }' >/dev/null
+        print_info "Created ecsTaskExecutionRole"
+    fi
 
+    print_step "Attaching policy to ECS Task Execution Role"
     aws iam attach-role-policy \
         --role-name ecsTaskExecutionRole \
-        --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy >/dev/null
+    print_info "Policy attached to ecsTaskExecutionRole"
 
     print_step "Creating ECS Task Role"
-    aws iam create-role --role-name ecsTaskRole \
-        --assume-role-policy-document '{
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Principal": {
-                        "Service": "ecs-tasks.amazonaws.com"
-                    },
-                    "Action": "sts:AssumeRole"
-                }
-            ]
-        }' 2>/dev/null || print_info "Role ecsTaskRole already exists"
+    if aws iam get-role --role-name ecsTaskRole &>/dev/null; then
+        print_info "Role ecsTaskRole already exists"
+    else
+        aws iam create-role --role-name ecsTaskRole \
+            --assume-role-policy-document '{
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "ecs-tasks.amazonaws.com"
+                        },
+                        "Action": "sts:AssumeRole"
+                    }
+                ]
+            }' >/dev/null
+        print_info "Created ecsTaskRole"
+    fi
+
+    # Add a basic policy to the task role for accessing other AWS services
+    print_step "Attaching basic policies to ECS Task Role"
+
+    # Create a custom policy for the task role if it doesn't exist
+    POLICY_NAME="EnergyCompanyTaskRolePolicy"
+    POLICY_ARN="arn:aws:iam::$AWS_ACCOUNT_ID:policy/$POLICY_NAME"
+
+    if ! aws iam get-policy --policy-arn "$POLICY_ARN" &>/dev/null; then
+        aws iam create-policy --policy-name "$POLICY_NAME" \
+            --policy-document '{
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": [
+                            "logs:CreateLogGroup",
+                            "logs:CreateLogStream",
+                            "logs:PutLogEvents",
+                            "secretsmanager:GetSecretValue"
+                        ],
+                        "Resource": "*"
+                    }
+                ]
+            }' >/dev/null
+        print_info "Created custom task role policy"
+    fi
+
+    # Attach the custom policy
+    aws iam attach-role-policy \
+        --role-name ecsTaskRole \
+        --policy-arn "$POLICY_ARN" >/dev/null
+    print_info "Policy attached to ecsTaskRole"
 
     print_info "IAM roles setup complete!"
 }
