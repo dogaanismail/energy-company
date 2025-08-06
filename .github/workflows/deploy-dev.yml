@@ -147,9 +147,8 @@ jobs:
           echo "🏗️ Infrastructure doesn't exist, deploying CloudFormation stack..."
           aws cloudformation create-stack \
             --stack-name energy-company-dev \
-            --template-body file://.aws/infrastructure.yml \
+            --template-body file://.aws/infrastructure-simplified.yml \
             --parameters ParameterKey=Environment,ParameterValue=dev \
-                        ParameterKey=DBPassword,ParameterValue=${{ secrets.DB_PASSWORD }} \
             --capabilities CAPABILITY_IAM \
             --region $AWS_REGION
           
