@@ -1,6 +1,9 @@
 name: Ultra-Simple Deploy to Development
 
 on:
+  pull_request:
+    branches: [ main, master ]
+    types: [ opened, synchronize, reopened ]
   workflow_dispatch: # Manual trigger
 
 permissions:
