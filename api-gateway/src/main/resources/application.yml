@@ -8,28 +8,29 @@ spring:
   main:
     web-application-type: reactive
 
-
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-      httpclient:
-        connect-timeout: 60000
-        response-timeout: 60s
-      globalcors:
-        add-to-simple-url-handler-mapping: true
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: ${ENERGY_COMPANY_CLIENT_URL:http://localhost:5173} # front-end client side url
-            allowedHeaders: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      server:
+        webflux:
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                          allowedOrigins: ${ENERGY_COMPANY_CLIENT_URL:http://localhost:5173} # front-end client side url
+                          allowedHeaders: "*"
+                          allowedMethods:
+                            - GET
+                            - POST
+                            - PUT
+                            - DELETE
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+          httpclient:
+            connect-timeout: 60000
+            response-timeout: 60s
+          discovery:
+            locator:
+              enabled: true
 
 eureka:
   client:
