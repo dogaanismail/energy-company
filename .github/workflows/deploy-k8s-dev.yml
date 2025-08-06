@@ -116,10 +116,11 @@ jobs:
           echo "Generated JSON: $SERVICES_JSON"
         fi
 
+
   build-and-deploy:
     name: Build and Deploy to Kubernetes
     runs-on: ubuntu-latest
-    needs: [detect-changes]
+    needs: [ detect-changes ]
     if: needs.detect-changes.outputs.has-changes == 'true'
     strategy:
       matrix:
@@ -149,11 +150,36 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
+    - name: Determine service path
+      id: service-path
+      run: |
+        SERVICE_PATH=""
+        case "${{ matrix.service }}" in
+          "consumption-service")
+            SERVICE_PATH="consumption/consumption-service"
+            ;;
+          "consumption-service-db-migration")
+            SERVICE_PATH="consumption/consumption-service-db-migration"
+            ;;
+          "customer-service")
+            SERVICE_PATH="customer/customer-service"
+            ;;
+          "customer-service-db-migration")
+            SERVICE_PATH="customer/customer-service-db-migration"
+            ;;
+          *)
+            # For services at the repository root
+            SERVICE_PATH="${{ matrix.service }}"
+            ;;
+        esac
+        echo "path=$SERVICE_PATH" >> $GITHUB_OUTPUT
+        echo "Determined path for ${{ matrix.service }} is $SERVICE_PATH"
+
     - name: Build backend service
       if: matrix.service != 'energy-company-client'
       run: |
         chmod +x ./gradlew
-        # Convert service path from 'customer/customer-service' to ':customer:customer-service' for Gradle
+        # This now correctly uses the output from the step above
         PROJECT_PATH=":"$(echo "${{ steps.service-path.outputs.path }}" | sed 's|/|:|g')
         echo "Building specific project: $PROJECT_PATH"
         ./gradlew "$PROJECT_PATH:build" -x test
@@ -213,6 +239,8 @@ jobs:
         kubectl rollout status deployment/${{ matrix.service }} -n energy-company-dev
         
         echo "✅ ${{ matrix.service }} deployed successfully to Kubernetes!"
+
+
 
   notify-deployment:
     name: Notify Deployment Status
