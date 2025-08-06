@@ -120,7 +120,7 @@ jobs:
         fi
 
   build-and-deploy:
-    name: Build and Deploy Changed Services
+    name: Deploy to Development
     runs-on: ubuntu-latest
     needs: detect-changes
     if: needs.detect-changes.outputs.has-changes == 'true'
@@ -139,6 +139,58 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy infrastructure if needed
+      run: |
+        # Check if infrastructure exists
+        if ! aws cloudformation describe-stacks --stack-name energy-company-dev --region $AWS_REGION > /dev/null 2>&1; then
+          echo "🏗️ Infrastructure doesn't exist, deploying CloudFormation stack..."
+          aws cloudformation create-stack \
+            --stack-name energy-company-dev \
+            --template-body file://.aws/infrastructure.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
+                        ParameterKey=DBPassword,ParameterValue=${{ secrets.DB_PASSWORD }} \
+            --capabilities CAPABILITY_IAM \
+            --region $AWS_REGION
+          
+          echo "⏳ Waiting for infrastructure deployment to complete..."
+          aws cloudformation wait stack-create-complete \
+            --stack-name energy-company-dev \
+            --region $AWS_REGION
+          echo "✅ Infrastructure deployed successfully!"
+        else
+          echo "✅ Infrastructure already exists, proceeding with service deployment"
+        fi
+
+    - name: Get infrastructure outputs
+      id: infrastructure
+      run: |
+        # Get VPC and subnet information
+        VPC_ID=$(aws cloudformation describe-stacks \
+          --stack-name energy-company-dev \
+          --region $AWS_REGION \
+          --query 'Stacks[0].Outputs[?OutputKey==`VPCId`].OutputValue' \
+          --output text)
+        
+        PRIVATE_SUBNETS=$(aws ec2 describe-subnets \
+          --filters "Name=vpc-id,Values=$VPC_ID" "Name=tag:Name,Values=*private*" \
+          --query 'Subnets[].SubnetId' \
+          --output text \
+          --region $AWS_REGION | tr '\t' ',')
+        
+        ECS_SECURITY_GROUP=$(aws ec2 describe-security-groups \
+          --filters "Name=vpc-id,Values=$VPC_ID" "Name=group-name,Values=*ecs*" \
+          --query 'SecurityGroups[0].GroupId' \
+          --output text \
+          --region $AWS_REGION)
+        
+        echo "vpc-id=$VPC_ID" >> $GITHUB_OUTPUT
+        echo "private-subnets=$PRIVATE_SUBNETS" >> $GITHUB_OUTPUT  
+        echo "ecs-security-group=$ECS_SECURITY_GROUP" >> $GITHUB_OUTPUT
+        
+        echo "VPC ID: $VPC_ID"
+        echo "Private Subnets: $PRIVATE_SUBNETS"
+        echo "ECS Security Group: $ECS_SECURITY_GROUP"
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -241,36 +293,41 @@ jobs:
         
         # Create a new task definition from the template
         sed "s|PLACEHOLDER_IMAGE|$ECR_REGISTRY/energy-company-${{ matrix.service }}-dev:latest|g" "$TEMPLATE_FILE" > "$TASK_DEFINITION_FILE"
-        sed -i "s/${{ matrix.service }}-prod/${TASK_DEFINITION_FAMILY}/g" "$TASK_DEFINITION_FILE"
-        sed -i "s/${{ matrix.service }}/${TASK_DEFINITION_FAMILY}/g" "$TASK_DEFINITION_FILE"
         
         # Register the new task definition
         NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json "file://${TASK_DEFINITION_FILE}" --query 'taskDefinition.taskDefinitionArn' --output text)
+        echo "✅ Registered task definition: $NEW_TASK_DEF_ARN"
         
         # Check if service exists
-        if aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$SERVICE_NAME" --query 'services[?status==`ACTIVE`]' --output text | grep -q "$SERVICE_NAME"; then
+        if aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$SERVICE_NAME" --query 'services[?status==`ACTIVE`]' --output text --region $AWS_REGION | grep -q "$SERVICE_NAME"; then
           echo "Service $SERVICE_NAME exists - updating existing service"
           aws ecs update-service \
             --cluster "$ECS_CLUSTER" \
             --service "$SERVICE_NAME" \
-            --task-definition "$NEW_TASK_DEF_ARN" \
-            --force-new-deployment
+            --task-definition "$TASK_DEFINITION_FAMILY" \
+            --force-new-deployment \
+            --region $AWS_REGION
         else
           echo "Service $SERVICE_NAME does not exist - creating new service"
-          # Note: This part is for initial setup. The service should ideally be created by the infrastructure script.
-          # We will attempt to create it if it's missing.
+          
+          # Convert comma-separated subnets to JSON array
+          SUBNETS_JSON=$(echo "${{ steps.infrastructure.outputs.private-subnets }}" | sed 's/,/","/g' | sed 's/^/"/' | sed 's/$/"/')
+          
+          # Create the service with proper network configuration
           aws ecs create-service \
             --cluster "$ECS_CLUSTER" \
             --service-name "$SERVICE_NAME" \
-            --task-definition "$NEW_TASK_DEF_ARN" \
+            --task-definition "$TASK_DEFINITION_FAMILY" \
             --desired-count 1 \
             --launch-type "FARGATE" \
-            --network-configuration "awsvpcConfiguration={subnets=[<SUBNET_ID_1>, <SUBNET_ID_2>],securityGroups=[<SECURITY_GROUP_ID>]}"
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS_JSON],securityGroups=[\"${{ steps.infrastructure.outputs.ecs-security-group }}\"],assignPublicIp=DISABLED}" \
+            --region $AWS_REGION
         fi
         
         # Wait for the service to become stable
-        echo "Waiting for service $SERVICE_NAME to stabilize..."
-        aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$SERVICE_NAME"
+        echo "⏳ Waiting for service $SERVICE_NAME to stabilize..."
+        aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$SERVICE_NAME" --region $AWS_REGION
+        echo "✅ Service $SERVICE_NAME is stable and running!"
 
   notify-deployment:
     name: Notify Deployment Status
