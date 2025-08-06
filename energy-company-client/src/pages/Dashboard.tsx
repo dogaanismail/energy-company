@@ -23,8 +23,9 @@ const Dashboard = () => {
         setMeteringPoints(meteringPoints);
                 
         setError(null);
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to fetch data');
+      } catch (err: unknown) {
+        const error = err as { response?: { data?: { message?: string } } };
+        setError(error.response?.data?.message || 'Failed to fetch data');
         console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
@@ -32,7 +33,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [customer?.id]);
 
   if (loading) {
     return <LoadingSpinner />;

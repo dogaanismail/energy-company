@@ -52,9 +52,10 @@ const ConsumptionOverview = () => {
         }
         
         setError(null);
-      } catch (err:any) {
+      } catch (err: unknown) {
         console.error('Error fetching metering points:', err);
-        setError(err.message || 'Failed to fetch metering points');
+        const error = err as { message?: string };
+        setError(error.message || 'Failed to fetch metering points');
         setMeteringPoints([]);
       } finally {
         setLoading(false);
@@ -84,9 +85,10 @@ const ConsumptionOverview = () => {
         setFormattedData(formatted);
         
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching consumption data:', err);
-        setError(err.message || 'Failed to fetch consumption data');
+        const error = err as { message?: string };
+        setError(error.message || 'Failed to fetch consumption data');
         setFormattedData([]);
       } finally {
         setLoading(false);

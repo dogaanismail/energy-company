@@ -28,8 +28,9 @@ const Register = () => {
     try {
       await registerCustomer(data.email, data.firstName, data.lastName, data.password, 'CUSTOMER');
       navigate('/login', { state: { message: 'Registration successful! You can now login.' } });
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

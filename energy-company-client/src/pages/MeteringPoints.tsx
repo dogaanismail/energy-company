@@ -16,16 +16,17 @@ const MeteringPoints = () => {
         setLoading(true);
         const pointsData = await meteringPointsService.getCustomerMeteringPoints(customer?.id || '');
         setMeteringPoints(pointsData);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching data:', err);
-        setError(err.message || 'Failed to fetch metering points');
+        const error = err as { message?: string };
+        setError(error.message || 'Failed to fetch metering points');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [customer?.id]);
 
   if (loading) {
     return <LoadingSpinner />;
