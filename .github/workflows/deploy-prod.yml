@@ -94,7 +94,7 @@ jobs:
         for service in "${SERVICES[@]}"; do
           case $service in
             "eureka-server") PRIORITY_1+=("$service") ;;
-            "*db-migration") PRIORITY_2+=("$service") ;;
+            *"db-migration") PRIORITY_2+=("$service") ;;
             "customer-service"|"consumption-service"|"elering-adapter") PRIORITY_3+=("$service") ;;
             "authentication-service") PRIORITY_4+=("$service") ;;
             "api-gateway") PRIORITY_5+=("$service") ;;
@@ -105,20 +105,39 @@ jobs:
         # Combine in deployment order
         ORDERED_SERVICES=(${PRIORITY_1[@]} ${PRIORITY_2[@]} ${PRIORITY_3[@]} ${PRIORITY_4[@]} ${PRIORITY_5[@]} ${PRIORITY_6[@]})
         
-        # Convert to JSON
+        # Convert to JSON format compatible with GitHub Actions matrix
         if [ ${#SERVICES[@]} -eq 0 ]; then
           echo "services=[]" >> $GITHUB_OUTPUT
           echo "has-changes=false" >> $GITHUB_OUTPUT
           echo "deployment-order=[]" >> $GITHUB_OUTPUT
           echo "No services have changed"
         else
-          SERVICES_JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -R . | jq -s .)
-          ORDERED_JSON=$(printf '%s\n' "${ORDERED_SERVICES[@]}" | jq -R . | jq -s .)
+          # Create properly formatted JSON arrays
+          SERVICES_JSON="["
+          for i in "${!SERVICES[@]}"; do
+            if [ $i -gt 0 ]; then
+              SERVICES_JSON+=","
+            fi
+            SERVICES_JSON+="\"${SERVICES[$i]}\""
+          done
+          SERVICES_JSON+="]"
+          
+          ORDERED_JSON="["
+          for i in "${!ORDERED_SERVICES[@]}"; do
+            if [ $i -gt 0 ]; then
+              ORDERED_JSON+=","
+            fi
+            ORDERED_JSON+="\"${ORDERED_SERVICES[$i]}\""
+          done
+          ORDERED_JSON+="]"
+          
           echo "services=$SERVICES_JSON" >> $GITHUB_OUTPUT
           echo "deployment-order=$ORDERED_JSON" >> $GITHUB_OUTPUT
           echo "has-changes=true" >> $GITHUB_OUTPUT
           echo "Services to deploy: ${SERVICES[*]}"
           echo "Deployment order: ${ORDERED_SERVICES[*]}"
+          echo "Generated services JSON: $SERVICES_JSON"
+          echo "Generated order JSON: $ORDERED_JSON"
         fi
 
   deploy-infrastructure:
