@@ -154,7 +154,7 @@ jobs:
       run: |
         chmod +x ./gradlew
         # Convert service path from 'customer/customer-service' to ':customer:customer-service' for Gradle
-        PROJECT_PATH=$(echo "${{ steps.service-path.outputs.path }}" | sed 's/\\//:/g')
+        PROJECT_PATH=":"$(echo "${{ steps.service-path.outputs.path }}" | sed 's|/|:|g')
         echo "Building specific project: $PROJECT_PATH"
         ./gradlew "$PROJECT_PATH:build" -x test
 
