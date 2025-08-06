@@ -63,6 +63,13 @@ jobs:
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v2
 
+    - name: Build service with Gradle
+      run: |
+        echo "Building Eureka Server with Gradle..."
+        cd eureka-server
+        chmod +x ./gradlew
+        ./gradlew build --no-daemon -x test
+
     - name: Build and Push Docker Image
       run: |
         cd eureka-server
