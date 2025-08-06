@@ -174,68 +174,70 @@ jobs:
         
         echo "🔍 Found VPC ID: $VPC_ID"
         
-        # Get private subnets - try multiple approaches
-        PRIVATE_SUBNETS=$(aws ec2 describe-subnets \
-          --filters "Name=vpc-id,Values=$VPC_ID" "Name=tag:Name,Values=*private*" \
+        # Debug: List all subnets in the VPC to see what's available
+        echo "🔍 Listing all subnets in VPC $VPC_ID:"
+        aws ec2 describe-subnets \
+          --filters "Name=vpc-id,Values=$VPC_ID" \
+          --query 'Subnets[].{SubnetId:SubnetId,CidrBlock:CidrBlock,Name:Tags[?Key==`Name`].Value|[0],AvailabilityZone:AvailabilityZone}' \
+          --output table \
+          --region $AWS_REGION || echo "No subnets found in VPC"
+        
+        # Try to get any subnets from the VPC - simplified approach
+        ALL_SUBNETS=$(aws ec2 describe-subnets \
+          --filters "Name=vpc-id,Values=$VPC_ID" \
           --query 'Subnets[].SubnetId' \
           --output text \
-          --region $AWS_REGION | tr ' ' ',' | sed 's/,$//')
+          --region $AWS_REGION)
         
-        # If no subnets found with private tag, get all subnets and filter
-        if [ -z "$PRIVATE_SUBNETS" ]; then
-          echo "⚠️ No private subnets found with tag, searching for private subnets by CIDR..."
-          PRIVATE_SUBNETS=$(aws ec2 describe-subnets \
-            --filters "Name=vpc-id,Values=$VPC_ID" \
-            --query 'Subnets[?contains(CidrBlock,`10.0.3.`) || contains(CidrBlock,`10.0.4.`)].SubnetId' \
-            --output text \
-            --region $AWS_REGION | tr ' ' ',' | sed 's/,$//')
-        fi
+        echo "🔍 All subnets found: $ALL_SUBNETS"
         
-        # If still no subnets, get any available subnets
-        if [ -z "$PRIVATE_SUBNETS" ]; then
-          echo "⚠️ No private subnets found by CIDR, using any available subnets..."
-          PRIVATE_SUBNETS=$(aws ec2 describe-subnets \
-            --filters "Name=vpc-id,Values=$VPC_ID" \
-            --query 'Subnets[0:2].SubnetId' \
-            --output text \
-            --region $AWS_REGION | tr ' ' ',' | sed 's/,$//')
-        fi
+        # Convert space-separated to comma-separated and take first 2
+        PRIVATE_SUBNETS=$(echo "$ALL_SUBNETS" | tr ' ' ',' | cut -d, -f1,2)
         
-        # Get ECS security group
+        # Remove trailing comma if exists
+        PRIVATE_SUBNETS=$(echo "$PRIVATE_SUBNETS" | sed 's/,$//')
+        
+        echo "🔍 Selected subnets: $PRIVATE_SUBNETS"
+        
+        # Get any security group from the VPC
+        echo "🔍 Listing all security groups in VPC $VPC_ID:"
+        aws ec2 describe-security-groups \
+          --filters "Name=vpc-id,Values=$VPC_ID" \
+          --query 'SecurityGroups[].{GroupId:GroupId,GroupName:GroupName,Description:Description}' \
+          --output table \
+          --region $AWS_REGION
+        
+        # Get the first available security group
         ECS_SECURITY_GROUP=$(aws ec2 describe-security-groups \
-          --filters "Name=vpc-id,Values=$VPC_ID" "Name=group-name,Values=*ecs*" \
+          --filters "Name=vpc-id,Values=$VPC_ID" \
           --query 'SecurityGroups[0].GroupId' \
           --output text \
           --region $AWS_REGION)
         
-        # If no ECS security group found, try alternative names
-        if [ "$ECS_SECURITY_GROUP" == "None" ] || [ -z "$ECS_SECURITY_GROUP" ]; then
-          echo "⚠️ ECS security group not found, searching for alternatives..."
-          ECS_SECURITY_GROUP=$(aws ec2 describe-security-groups \
-            --filters "Name=vpc-id,Values=$VPC_ID" \
-            --query 'SecurityGroups[?contains(GroupName,`energy-company`)].GroupId' \
-            --output text \
-            --region $AWS_REGION | head -1)
-        fi
+        echo "🔍 Selected security group: $ECS_SECURITY_GROUP"
         
-        # Set outputs with validation
-        if [ -z "$PRIVATE_SUBNETS" ]; then
-          echo "❌ ERROR: No subnets found! Cannot proceed."
+        # Validate that we have the minimum required resources
+        if [ -z "$PRIVATE_SUBNETS" ] || [ "$PRIVATE_SUBNETS" == "None" ]; then
+          echo "❌ ERROR: No subnets found in VPC $VPC_ID!"
+          echo "This suggests the infrastructure may not have deployed properly."
+          echo "Please check CloudFormation stack status."
           exit 1
         fi
         
         if [ -z "$ECS_SECURITY_GROUP" ] || [ "$ECS_SECURITY_GROUP" == "None" ]; then
-          echo "❌ ERROR: No security group found! Cannot proceed."
+          echo "❌ ERROR: No security groups found in VPC $VPC_ID!"
+          echo "This suggests the infrastructure may not have deployed properly."
           exit 1
         fi
         
+        # Set outputs
         echo "vpc-id=$VPC_ID" >> $GITHUB_OUTPUT
         echo "private-subnets=$PRIVATE_SUBNETS" >> $GITHUB_OUTPUT  
         echo "ecs-security-group=$ECS_SECURITY_GROUP" >> $GITHUB_OUTPUT
         
         echo "✅ VPC ID: $VPC_ID"
-        echo "✅ Private Subnets: $PRIVATE_SUBNETS"
-        echo "✅ ECS Security Group: $ECS_SECURITY_GROUP"
+        echo "✅ Selected Subnets: $PRIVATE_SUBNETS"
+        echo "✅ Selected Security Group: $ECS_SECURITY_GROUP"
 
     - name: Login to Amazon ECR
       id: login-ecr
