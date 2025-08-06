@@ -147,11 +147,38 @@ jobs:
     - name: Set service path
       id: service-path
       run: |
-        if [ "${{ matrix.service.path }}" != "" ]; then
-          echo "path=${{ matrix.service.path }}" >> $GITHUB_OUTPUT
-        else
-          echo "path=${{ matrix.service.name }}" >> $GITHUB_OUTPUT
-        fi
+        case "${{ matrix.service }}" in
+          "api-gateway")
+            echo "path=api-gateway" >> $GITHUB_OUTPUT
+            ;;
+          "authentication-service")
+            echo "path=authentication-service" >> $GITHUB_OUTPUT
+            ;;
+          "consumption-service")
+            echo "path=consumption/consumption-service" >> $GITHUB_OUTPUT
+            ;;
+          "consumption-service-db-migration")
+            echo "path=consumption/consumption-service-db-migration" >> $GITHUB_OUTPUT
+            ;;
+          "customer-service")
+            echo "path=customer/customer-service" >> $GITHUB_OUTPUT
+            ;;
+          "customer-service-db-migration")
+            echo "path=customer/customer-service-db-migration" >> $GITHUB_OUTPUT
+            ;;
+          "elering-adapter")
+            echo "path=elering-adapter" >> $GITHUB_OUTPUT
+            ;;
+          "eureka-server")
+            echo "path=eureka-server" >> $GITHUB_OUTPUT
+            ;;
+          "energy-company-client")
+            echo "path=energy-company-client" >> $GITHUB_OUTPUT
+            ;;
+          *)
+            echo "path=${{ matrix.service }}" >> $GITHUB_OUTPUT
+            ;;
+        esac
 
     - name: Set up JDK ${{ env.JAVA_VERSION }}
       if: matrix.service.name != 'energy-company-client'
