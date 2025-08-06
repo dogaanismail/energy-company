@@ -146,6 +146,9 @@ jobs:
       run: |
         aws eks update-kubeconfig --name $EKS_CLUSTER --region $AWS_REGION
 
+    - name: Apply Kubernetes Namespace
+      run: kubectl apply -f k8s/namespace.yaml
+
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
