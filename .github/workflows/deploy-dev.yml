@@ -381,32 +381,65 @@ jobs:
         ECR_REPOSITORY="energy-company-${{ matrix.service }}-dev"
         IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}"
         
-        # Set the correct container port based on service
+        # Set the correct container port and environment variables based on service
         case "${{ matrix.service }}" in
           "eureka-server")
             CONTAINER_PORT=8761
+            ENV_VARS='[]'
             ;;
           "api-gateway")
             CONTAINER_PORT=4000
+            ENV_VARS='[
+              {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
+            ]'
             ;;
           "consumption-service")
             CONTAINER_PORT=5006
+            ENV_VARS='[
+              {"name": "DB_SERVICE_URL", "value": "'${{ secrets.CONSUMPTION_DB_URL }}'"},
+              {"name": "DB_SERVICE_USERNAME", "value": "'${{ secrets.CONSUMPTION_DB_USERNAME }}'"},
+              {"name": "DB_SERVICE_PASSWORD", "value": "'${{ secrets.CONSUMPTION_DB_PASSWORD }}'"},
+              {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
+            ]'
             ;;
           "consumption-service-db-migration")
             CONTAINER_PORT=7006
+            ENV_VARS='[
+              {"name": "DB_SERVICE_URL", "value": "'${{ secrets.CONSUMPTION_DB_URL }}'"},
+              {"name": "DB_SERVICE_USERNAME", "value": "'${{ secrets.CONSUMPTION_DB_USERNAME }}'"},
+              {"name": "DB_SERVICE_PASSWORD", "value": "'${{ secrets.CONSUMPTION_DB_PASSWORD }}'"}
+            ]'
+            ;;
+          "customer-service")
+            CONTAINER_PORT=8080
+            ENV_VARS='[
+              {"name": "DB_SERVICE_URL", "value": "'${{ secrets.CUSTOMER_DB_URL }}'"},
+              {"name": "DB_SERVICE_USERNAME", "value": "'${{ secrets.CUSTOMER_DB_USERNAME }}'"},
+              {"name": "DB_SERVICE_PASSWORD", "value": "'${{ secrets.CUSTOMER_DB_PASSWORD }}'"},
+              {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
+            ]'
             ;;
           "customer-service-db-migration")
             CONTAINER_PORT=7005
+            ENV_VARS='[
+              {"name": "DB_SERVICE_URL", "value": "'${{ secrets.CUSTOMER_DB_URL }}'"},
+              {"name": "DB_SERVICE_USERNAME", "value": "'${{ secrets.CUSTOMER_DB_USERNAME }}'"},
+              {"name": "DB_SERVICE_PASSWORD", "value": "'${{ secrets.CUSTOMER_DB_PASSWORD }}'"}
+            ]'
             ;;
           "energy-company-client")
             CONTAINER_PORT=5173
+            ENV_VARS='[]'
             ;;
           *)
             CONTAINER_PORT=8080
+            ENV_VARS='[
+              {"name": "EUREKA_SERVICE_URL", "value": "http://eureka-server-dev.energy-company-dev:8761/eureka/"}
+            ]'
             ;;
         esac
         
-        # Create a simple task definition
+        # Create a task definition with proper environment variables
         cat > "/tmp/${TASK_DEFINITION_FAMILY}.json" << EOF
         {
           "family": "$TASK_DEFINITION_FAMILY",
@@ -420,6 +453,7 @@ jobs:
               "name": "${{ matrix.service }}",
               "image": "$IMAGE_URI",
               "essential": true,
+              "environment": $ENV_VARS,
               "portMappings": [
                 {
                   "containerPort": $CONTAINER_PORT,
