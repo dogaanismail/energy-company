@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication-service
+  namespace: energy-company-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication-service
+  template:
+    metadata:
+      labels:
+        app: authentication-service
+    spec:
+      containers:
+      - name: authentication-service
+        image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-authentication-service-dev:latest
+        ports:
+        - containerPort: 2000
+        env:
+        - name: EUREKA_SERVICE_URL
+          value: "http://eureka-server:8761/eureka/"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 2000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 2000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-service
+  namespace: energy-company-dev
+spec:
+  selector:
+    app: authentication-service
+  ports:
+  - protocol: TCP
+    port: 2000
+    targetPort: 2000
+  type: ClusterIP

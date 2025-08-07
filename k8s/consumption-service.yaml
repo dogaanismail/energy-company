@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumption-service
+  namespace: energy-company-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumption-service
+  template:
+    metadata:
+      labels:
+        app: consumption-service
+    spec:
+      containers:
+      - name: consumption-service
+        image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-consumption-service-dev:latest
+        ports:
+        - containerPort: 5006
+        env:
+        - name: DB_SERVICE_URL
+          valueFrom:
+            secretKeyRef:
+              name: consumption-db-secret
+              key: url
+        - name: DB_SERVICE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: consumption-db-secret
+              key: username
+        - name: DB_SERVICE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: consumption-db-secret
+              key: password
+        - name: EUREKA_SERVICE_URL
+          value: "http://eureka-server:8761/eureka/"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 5006
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 5006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: consumption-service
+  namespace: energy-company-dev
+spec:
+  selector:
+    app: consumption-service
+  ports:
+  - protocol: TCP
+    port: 5006
+    targetPort: 5006
+  type: ClusterIP

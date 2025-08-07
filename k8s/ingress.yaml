@@ -1,0 +1,71 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: energy-company-ingress
+  namespace: energy-company-dev
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+spec:
+  rules:
+  - host: energy-company-dev.yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: energy-company-client
+            port:
+              number: 5173
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 4000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: energy-company-client
+  namespace: energy-company-dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: energy-company-client
+  template:
+    metadata:
+      labels:
+        app: energy-company-client
+    spec:
+      containers:
+      - name: energy-company-client
+        image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-energy-company-client-dev:latest
+        ports:
+        - containerPort: 5173
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: energy-company-client
+  namespace: energy-company-dev
+spec:
+  selector:
+    app: energy-company-client
+  ports:
+  - port: 5173
+    targetPort: 5173
+  type: ClusterIP

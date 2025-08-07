@@ -99,25 +99,57 @@ After deployment:
 1. **Check GitHub Actions logs** - Most issues show up here
 2. **Check CloudWatch logs** - For runtime issues
 3. **Verify AWS credentials** - Make sure GitHub secrets are correct
-4. **Check service health** - In ECS console
+4. **Check service health** - Use kubectl commands
+
+```bash
+# Check all pods
+kubectl get pods -n energy-company-dev
+
+# Check service status  
+kubectl get services -n energy-company-dev
+
+# Check individual service health
+kubectl port-forward service/eureka-server 8761:8761 -n energy-company-dev
+```
 
 ## 💰 Cost Estimate
 
-**Development Environment**: ~$50-80/month
-- Small ECS tasks
-- Single-AZ databases
-- Minimal storage
+**Development Environment**: ~$25-40/month
+- EKS Control Plane: $72/month (free tier available)
+- t3.medium nodes (2 nodes): ~$60/month
+- RDS databases: ~$30/month
 
-**Production Environment**: ~$150-250/month  
-- Larger ECS tasks
+**Production Environment**: ~$100-200/month  
+- EKS Control Plane: $72/month
+- Larger nodes with auto-scaling
 - Multi-AZ databases
-- Load balancer
+- Application Load Balancer
 - Enhanced monitoring
 
 ## 🎉 You're Ready!
 
-Your complete CI/CD pipeline is now set up. Every time you:
-- Create a PR → Deploys to development
-- Merge to main → Deploys to production
+Your complete Kubernetes CI/CD pipeline is now set up. Every time you:
+- Create a PR → Deploys to development via GitHub Actions
+- Merge to main → Can deploy to production
 
-The entire microservices architecture, databases, and UI will be automatically deployed and scaled on AWS!
+The entire microservices architecture runs on Kubernetes with:
+- **Service Discovery**: Built-in Kubernetes DNS
+- **Load Balancing**: Automatic via Kubernetes Services  
+- **Health Checks**: Kubernetes liveness/readiness probes
+- **Auto-scaling**: Horizontal Pod Autoscaler ready
+- **Zero-downtime deployments**: Rolling updates
+
+## 🚀 Quick Deployment
+
+```bash
+# Set up EKS cluster (one-time)
+./setup-eks-cluster.sh
+
+# Deploy all microservices
+kubectl apply -f k8s/
+
+# Access your application
+kubectl port-forward service/energy-company-client 5173:5173 -n energy-company-dev
+```
+
+Your microservices will automatically discover and communicate with each other using Kubernetes DNS!
