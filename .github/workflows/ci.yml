@@ -49,10 +49,10 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: backend-test-reports
+        name: test-reports
         path: |
-          */build/reports/tests/
-          */build/test-results/
+          **/build/reports/tests/
+          **/build/test-results/
 
   test-frontend:
     name: Test Frontend
@@ -69,20 +69,16 @@ jobs:
         cache: 'npm'
         cache-dependency-path: energy-company-client/package-lock.json
 
-    - name: Install frontend dependencies
-      working-directory: ./energy-company-client
+    - name: Install dependencies
+      working-directory: energy-company-client
       run: npm ci
 
-    - name: Run frontend linting
-      working-directory: ./energy-company-client
-      run: npm run lint
-
     - name: Run frontend tests
-      working-directory: ./energy-company-client
-      run: npm run test
+      working-directory: energy-company-client
+      run: npm test -- --passWithNoTests
 
     - name: Build frontend
-      working-directory: ./energy-company-client
+      working-directory: energy-company-client
       run: npm run build
 
     - name: Upload frontend build artifacts

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: energy-company-client
+  namespace: energy-company-dev
+  labels:
+    app: energy-company-client
+spec:
+  selector:
+    app: energy-company-client
+  ports:
+  - protocol: TCP
+    port: 5173
+    targetPort: 5173
+  type: ClusterIP
+

@@ -1,30 +1,32 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: customer-service-db-migration
+  name: consumption-service-db-migration
   namespace: energy-company-dev
+  labels:
+    app: consumption-service-db-migration
 spec:
   template:
     spec:
       restartPolicy: Never
       containers:
-      - name: customer-service-db-migration
-        image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-customer-service-db-migration-dev:latest
+      - name: consumption-service-db-migration
+        image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-consumption-service-db-migration-dev:latest
         env:
         - name: DB_SERVICE_URL
           valueFrom:
             secretKeyRef:
-              name: customer-db-secret
+              name: consumption-db-secret
               key: url
         - name: DB_SERVICE_USERNAME
           valueFrom:
             secretKeyRef:
-              name: customer-db-secret
+              name: consumption-db-secret
               key: username
         - name: DB_SERVICE_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: customer-db-secret
+              name: consumption-db-secret
               key: password
         resources:
           requests:
@@ -34,3 +36,4 @@ spec:
             memory: "512Mi"
             cpu: "500m"
   backoffLimit: 3
+

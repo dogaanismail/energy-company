@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consumption-service-config
+  namespace: energy-company-dev
+data:
+  EUREKA_SERVICE_URL: "http://eureka-server:8761/eureka/"
+  SPRING_PROFILES_ACTIVE: "kubernetes"
+

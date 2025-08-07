@@ -1,0 +1,15 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: customer-service-db-migration
+build:
+  artifacts:
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-customer-service-db-migration-dev
+      jib: {}
+  tagPolicy:
+    gitCommit: {}
+manifests:
+  rawYaml:
+    - ../../k8s/privileges.yaml
+    - k8s/**.yaml
+

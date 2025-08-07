@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: consumption-service
+  namespace: energy-company-dev
+  labels:
+    app: consumption-service
+spec:
+  selector:
+    app: consumption-service
+  ports:
+  - protocol: TCP
+    port: 5006
+    targetPort: 5006
+  type: ClusterIP
+
