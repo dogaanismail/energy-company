@@ -285,7 +285,3 @@ jobs:
           kubectl describe job ${{ matrix.service }} -n energy-company-dev
         fi
 
-
-  notify-deployment:
-    name: Notify Deployment Status
-    runs-on: ubuntu-l
