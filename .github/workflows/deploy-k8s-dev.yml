@@ -33,88 +33,89 @@ jobs:
       changed-services: ${{ steps.changes.outputs.services }}
       has-changes: ${{ steps.changes.outputs.has-changes }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Detect changed services
-      id: changes
-      run: |
-        # Get the base branch commit
-        BASE_SHA=$(git merge-base HEAD origin/${{ github.base_ref }})
-        
-        # Get list of changed files
-        CHANGED_FILES=$(git diff --name-only $BASE_SHA...HEAD)
-        echo "Changed files:"
-        echo "$CHANGED_FILES"
-        
-        # Initialize services array
-        SERVICES=()
-        
-        # Check each service for changes
-        if echo "$CHANGED_FILES" | grep -q "^api-gateway/"; then
-          SERVICES+=("api-gateway")
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -q "^authentication-service/"; then
-          SERVICES+=("authentication-service")
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service/"; then
-          SERVICES+=("consumption-service")
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service-db-migration/"; then
-          SERVICES+=("consumption-service-db-migration")
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -q "^customer/customer-service/"; then
-          SERVICES+=("customer-service")
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -q "^customer/customer-service-db-migration/"; then
-          SERVICES+=("customer-service-db-migration")
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -q "^elering-adapter/"; then
-          SERVICES+=("elering-adapter")
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -q "^eureka-server/"; then
-          SERVICES+=("eureka-server")
-        fi
-        
-        if echo "$CHANGED_FILES" | grep -q "^energy-company-client/"; then
-          SERVICES+=("energy-company-client")
-        fi
-        
-        # Check for infrastructure or global changes
-        if echo "$CHANGED_FILES" | grep -q "^k8s/\|^\.github/workflows/\|^build\.gradle$\|^settings\.gradle$"; then
-          echo "Infrastructure or global changes detected - deploying all services"
-          SERVICES=("api-gateway" "authentication-service" "consumption-service" "consumption-service-db-migration" "customer-service" "customer-service-db-migration" "elering-adapter" "eureka-server" "energy-company-client")
-        fi
-        
-        # Convert array to JSON format compatible with GitHub Actions matrix
-        if [ ${#SERVICES[@]} -eq 0 ]; then
-          echo "services=[]" >> $GITHUB_OUTPUT
-          echo "has-changes=false" >> $GITHUB_OUTPUT
-          echo "No services have changed"
-        else
-          # Create properly formatted JSON array
-          SERVICES_JSON="["
-          for i in "${!SERVICES[@]}"; do
-            if [ $i -gt 0 ]; then
-              SERVICES_JSON+=","
-            fi
-            SERVICES_JSON+="\"${SERVICES[$i]}\""
-          done
-          SERVICES_JSON+="]"
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Detect changed services
+        id: changes
+        run: |
+          # Get the base branch commit
+          BASE_SHA=$(git merge-base HEAD origin/${{ github.base_ref }})
           
-          echo "services=$SERVICES_JSON" >> $GITHUB_OUTPUT
-          echo "has-changes=true" >> $GITHUB_OUTPUT
-          echo "Services to deploy: ${SERVICES[*]}"
-          echo "Generated JSON: $SERVICES_JSON"
-        fi
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA...HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Initialize services array
+          SERVICES=()
+          
+          # Check each service for changes
+          if echo "$CHANGED_FILES" | grep -q "^api-gateway/"; then
+            SERVICES+=("api-gateway")
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^authentication-service/"; then
+            SERVICES+=("authentication-service")
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service/"; then
+            SERVICES+=("consumption-service")
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^consumption/consumption-service-db-migration/"; then
+            SERVICES+=("consumption-service-db-migration")
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^customer/customer-service/"; then
+            SERVICES+=("customer-service")
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^customer/customer-service-db-migration/"; then
+            SERVICES+=("customer-service-db-migration")
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^elering-adapter/"; then
+            SERVICES+=("elering-adapter")
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^eureka-server/"; then
+            SERVICES+=("eureka-server")
+          fi
+          
+          if echo "$CHANGED_FILES" | grep -q "^energy-company-client/"; then
+            SERVICES+=("energy-company-client")
+          fi
+          
+          # Check for infrastructure or global changes
+          if echo "$CHANGED_FILES" | grep -q "^k8s/\|^\.github/workflows/\|^build\.gradle$\|^settings\.gradle$"; then
+            echo "Infrastructure or global changes detected - deploying all services"
+            SERVICES=("api-gateway" "authentication-service" "consumption-service" "consumption-service-db-migration" "customer-service" "customer-service-db-migration" "elering-adapter" "eureka-server" "energy-company-client")
+          fi
+          
+          # Convert array to JSON format compatible with GitHub Actions matrix
+          if [ ${#SERVICES[@]} -eq 0 ]; then
+            echo "services=[]" >> $GITHUB_OUTPUT
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "No services have changed"
+          else
+            # Create properly formatted JSON array
+            SERVICES_JSON="["
+            for i in "${!SERVICES[@]}"; do
+              if [ $i -gt 0 ]; then
+                SERVICES_JSON+=","
+              fi
+              SERVICES_JSON+="\"${SERVICES[$i]}\""
+            done
+            SERVICES_JSON+="]"
+          
+            echo "services=$SERVICES_JSON" >> $GITHUB_OUTPUT
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "Services to deploy: ${SERVICES[*]}"
+            echo "Generated JSON: $SERVICES_JSON"
+          fi
+
 
   build-and-deploy:
     name: Build and Deploy to Kubernetes
@@ -126,162 +127,159 @@ jobs:
         service: ${{ fromJson(needs.detect-changes.outputs.changed-services) }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-    - name: Setup kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
 
-    - name: Update kubeconfig
-      run: |
-        aws eks update-kubeconfig --name $EKS_CLUSTER --region $AWS_REGION
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name $EKS_CLUSTER --region $AWS_REGION
 
-    - name: Apply Kubernetes Namespace
-      run: kubectl apply -f k8s/namespace.yaml
+      - name: Apply Kubernetes Namespace
+        run: kubectl apply -f k8s/namespace.yaml
 
-    - name: Determine service path
-      id: service-path
-      run: |
-        case "${{ matrix.service }}" in
-          "consumption-service")
-            echo "path=consumption/consumption-service" >> $GITHUB_OUTPUT
-            ;;
-          "consumption-service-db-migration")
-            echo "path=consumption/consumption-service-db-migration" >> $GITHUB_OUTPUT
-            ;;
-          "customer-service")
-            echo "path=customer/customer-service" >> $GITHUB_OUTPUT
-            ;;
-          "customer-service-db-migration")
-            echo "path=customer/customer-service-db-migration" >> $GITHUB_OUTPUT
-            ;;
-          *)
-            echo "path=${{ matrix.service }}" >> $GITHUB_OUTPUT
-            ;;
-        esac
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Set up JDK 21 for Java services
-      if: matrix.service != 'energy-company-client'
-      uses: actions/setup-java@v4
-      with:
-        java-version: ${{ env.JAVA_VERSION }}
-        distribution: 'temurin'
+      - name: Determine service path
+        id: service-path
+        run: |
+          SERVICE_PATH=""
+          case "${{ matrix.service }}" in
+            "consumption-service")
+              SERVICE_PATH="consumption/consumption-service"
+              ;;
+            "consumption-service-db-migration")
+              SERVICE_PATH="consumption/consumption-service-db-migration"
+              ;;
+            "customer-service")
+              SERVICE_PATH="customer/customer-service"
+              ;;
+            "customer-service-db-migration")
+              SERVICE_PATH="customer/customer-service-db-migration"
+              ;;
+            *)
+              # For services at the repository root
+              SERVICE_PATH="${{ matrix.service }}"
+              ;;
+          esac
+          echo "path=$SERVICE_PATH" >> $GITHUB_OUTPUT
+          echo "Determined path for ${{ matrix.service }} is $SERVICE_PATH"
 
-    - name: Set up Node.js for React client
-      if: matrix.service == 'energy-company-client'
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+      - name: Build backend service
+        if: matrix.service != 'energy-company-client'
+        run: |
+          chmod +x ./gradlew
+          PROJECT_PATH=":${{ matrix.service }}"
+          echo "Building specific project: $PROJECT_PATH"
+          ./gradlew "$PROJECT_PATH:build" -x test
 
-    - name: Build Java service
-      if: matrix.service != 'energy-company-client'
-      run: |
-        cd ${{ steps.service-path.outputs.path }}
-        ./gradlew build -x test
+      - name: Build frontend
+        if: matrix.service == 'energy-company-client'
+        working-directory: ./energy-company-client
+        run: |
+          npm ci
+          npm run build
 
-    - name: Build React client
-      if: matrix.service == 'energy-company-client'
-      run: |
-        cd ${{ steps.service-path.outputs.path }}
-        npm ci
-        npm run build
-
-    - name: Login to Amazon ECR
-      run: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
-
-    - name: Build and push Docker image
-      run: |
-        ECR_REPOSITORY="energy-company-${{ matrix.service }}-dev"
-        IMAGE_TAG="${{ github.sha }}"
-        
-        # Create ECR repository if it doesn't exist
-        aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_REGION 2>/dev/null || \
-        aws ecr create-repository --repository-name $ECR_REPOSITORY --region $AWS_REGION
-        
-        # Build and push Docker image using the correct service path
-        echo "Building Docker image from path: ${{ steps.service-path.outputs.path }}"
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ${{ steps.service-path.outputs.path }}
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-    - name: Create Kubernetes Secrets from GitHub Secrets
-      run: |
-        # Create database secrets using GitHub Secrets
-        kubectl create secret generic consumption-db-secret \
-          --from-literal=url="${{ secrets.CONSUMPTION_DB_URL }}" \
-          --from-literal=username="${{ secrets.CONSUMPTION_DB_USERNAME }}" \
-          --from-literal=password="${{ secrets.CONSUMPTION_DB_PASSWORD }}" \
-          -n energy-company-dev \
-          --dry-run=client -o yaml | kubectl apply -f -
-        
-        kubectl create secret generic customer-db-secret \
-          --from-literal=url="${{ secrets.CUSTOMER_DB_URL }}" \
-          --from-literal=username="${{ secrets.CUSTOMER_DB_USERNAME }}" \
-          --from-literal=password="${{ secrets.CUSTOMER_DB_PASSWORD }}" \
-          -n energy-company-dev \
-          --dry-run=client -o yaml | kubectl apply -f -
-        
-        echo "✅ Database secrets created from GitHub Secrets"
-
-    - name: Deploy to Kubernetes
-      run: |
-        MANIFEST_PATH="k8s/${{ matrix.service }}.yaml"
-        IMAGE_URL="$ECR_REGISTRY/energy-company-${{ matrix.service }}-dev:${{ github.sha }}"
-        
-        # Check if manifest file exists
-        if [ ! -f "$MANIFEST_PATH" ]; then
-          echo "Error: Manifest file not found at $MANIFEST_PATH"
-          exit 1
-        fi
-        
-        # Get the resource kind from the manifest
-        RESOURCE_KIND=$(kubectl get -f "$MANIFEST_PATH" --dry-run=client -o jsonpath='{.kind}' 2>/dev/null || echo "Unknown")
-        
-        if [[ "$RESOURCE_KIND" == "Deployment" ]]; then
-          echo "Applying manifest for Deployment..."
-          kubectl apply -f "$MANIFEST_PATH"
-        
-          echo "Updating Deployment image..."
-          kubectl set image deployment/${{ matrix.service }} \
-            ${{ matrix.service }}=$IMAGE_URL \
-            -n energy-company-dev
-        
-          echo "Waiting for rollout to complete..."
-          kubectl rollout status deployment/${{ matrix.service }} -n energy-company-dev --timeout=5m
-        
-        elif [[ "$RESOURCE_KIND" == "Job" ]]; then
-          echo "Resource is a Job. Replacing image and re-creating."
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REPOSITORY: energy-company-${{ matrix.service }}-dev
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Create ECR repository if it doesn't exist
+          aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_REGION 2>/dev/null || \
+          aws ecr create-repository --repository-name $ECR_REPOSITORY --region $AWS_REGION
           
-          # Delete existing job if it exists
-          kubectl delete job ${{ matrix.service }} -n energy-company-dev --ignore-not-found=true
-          
-          # Replace image in manifest and apply
-          sed "s#image: .*#image: $IMAGE_URL#g" "$MANIFEST_PATH" | kubectl apply -f -
-          
-          echo "Waiting for Job to complete..."
-          kubectl wait --for=condition=complete job/${{ matrix.service }} -n energy-company-dev --timeout=10m
-        
-        else
-          echo "Applying manifest directly..."
-          kubectl apply -f "$MANIFEST_PATH"
-        fi
+          # Build and push Docker image using the correct service path
+          echo "Building Docker image from path: ${{ steps.service-path.outputs.path }}"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ${{ steps.service-path.outputs.path }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    - name: Verify deployment
-      run: |
-        echo "Checking deployment status..."
-        kubectl get pods -n energy-company-dev -l app=${{ matrix.service }}
-        
-        if kubectl get deployment ${{ matrix.service }} -n energy-company-dev >/dev/null 2>&1; then
-          kubectl describe deployment ${{ matrix.service }} -n energy-company-dev
-        elif kubectl get job ${{ matrix.service }} -n energy-company-dev >/dev/null 2>&1; then
-          kubectl describe job ${{ matrix.service }} -n energy-company-dev
-        fi
+      # The magic happens here - much simpler than ECS!
+      - name: Create Kubernetes Secrets from GitHub Secrets
+        run: |
+          # Create database secrets using GitHub Secrets
+          kubectl create secret generic consumption-db-secret \
+            --from-literal=url="${{ secrets.CONSUMPTION_DB_URL }}" \
+            --from-literal=username="${{ secrets.CONSUMPTION_DB_USERNAME }}" \
+            --from-literal=password="${{ secrets.CONSUMPTION_DB_PASSWORD }}" \
+            -n energy-company-dev \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          kubectl create secret generic customer-db-secret \
+            --from-literal=url="${{ secrets.CUSTOMER_DB_URL }}" \
+            --from-literal=username="${{ secrets.CUSTOMER_DB_USERNAME }}" \
+            --from-literal=password="${{ secrets.CUSTOMER_DB_PASSWORD }}" \
+            -n energy-company-dev \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          echo "✅ Database secrets created from GitHub Secrets"
 
+      - name: Deploy to Kubernetes
+        run: |
+          MANIFEST_PATH="k8s/${{ matrix.service }}.yaml"
+          IMAGE_URL="$ECR_REGISTRY/energy-company-${{ matrix.service }}-dev:${{ github.sha }}"
+          
+          RESOURCE_KIND=$(kubectl get -f "$MANIFEST_PATH" -o jsonpath='{.kind}' || echo "NotFound")
+          
+          if [[ "$RESOURCE_KIND" == "Deployment" ]]; then
+            echo "Applying manifest for Deployment..."
+            kubectl apply -f "$MANIFEST_PATH"
+          
+            echo "Updating Deployment image..."
+            kubectl set image deployment/${{ matrix.service }} \
+              ${{ matrix.service }}=$IMAGE_URL \
+              -n energy-company-dev
+          
+            echo "Waiting for rollout to complete..."
+            kubectl rollout status deployment/${{ matrix.service }} -n energy-company-dev --timeout=5m
+          
+          elif [[ "$RESOURCE_KIND" == "Job" ]]; then
+            echo "Resource is a Job. Replacing image and re-creating."
+            sed -i "s#image: .*#image: $IMAGE_URL#g" "$MANIFEST_PATH"
+          
+            # ✅ ADD THIS LINE TO DELETE THE OLD JOB
+            kubectl delete job ${{ matrix.service }} -n energy-company-dev --ignore-not-found=true
+          
+            echo "Applying new Job manifest..."
+            kubectl apply -f "$MANIFEST_PATH"
+          
+            echo "Waiting for Job to complete..."
+            kubectl wait --for=condition=complete job/${{ matrix.service }} -n energy-company-dev --timeout=5m
+          
+          elif [[ "$RESOURCE_KIND" == "NotFound" ]]; then
+              echo "Manifest file not found at $MANIFEST_PATH"
+              exit 1
+          else
+              echo "Unsupported resource kind '$RESOURCE_KIND' for this workflow."
+              exit 1
+          fi
+          
+          echo "✅ ${{ matrix.service }} deployed successfully to Kubernetes!"
+
+
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-and-deploy]
+    if: always()
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Same notification logic but for Kubernetes
+            const status = '${{ needs.build-and-deploy.result }}' === 'success' ? '🚀 Deployed to Kubernetes!' : '❌ Deployment Failed';
+            // ... rest of notification logic
