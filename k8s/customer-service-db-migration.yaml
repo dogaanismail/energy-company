@@ -6,6 +6,7 @@ metadata:
 spec:
   template:
     spec:
+      restartPolicy: Never
       containers:
       - name: customer-service-db-migration
         image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-customer-service-db-migration-dev:latest
@@ -27,11 +28,9 @@ spec:
               key: password
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
             memory: "256Mi"
             cpu: "250m"
-      restartPolicy: OnFailure
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
   backoffLimit: 3
-

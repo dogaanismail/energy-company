@@ -4,23 +4,16 @@ metadata:
   name: energy-company-ingress
   namespace: energy-company-dev
   annotations:
-    kubernetes.io/ingress.class: "alb"
+    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
   rules:
-  - host: energy-company-dev.your-domain.com
+  - host: energy-company-dev.yourdomain.com
     http:
       paths:
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: api-gateway
-            port:
-              number: 4000
       - path: /
         pathType: Prefix
         backend:
@@ -28,6 +21,13 @@ spec:
             name: energy-company-client
             port:
               number: 5173
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 4000
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -69,4 +69,3 @@ spec:
   - port: 5173
     targetPort: 5173
   type: ClusterIP
-

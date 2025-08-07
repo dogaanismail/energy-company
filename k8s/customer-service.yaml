@@ -17,7 +17,7 @@ spec:
       - name: customer-service
         image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-customer-service-dev:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 5007
         env:
         - name: DB_SERVICE_URL
           valueFrom:
@@ -46,15 +46,16 @@ spec:
         livenessProbe:
           httpGet:
             path: /actuator/health
-            port: 8080
+            port: 5007
           initialDelaySeconds: 60
           periodSeconds: 30
         readinessProbe:
           httpGet:
-            path: /actuator/health/readiness
-            port: 8080
+            path: /actuator/health
+            port: 5007
           initialDelaySeconds: 30
           periodSeconds: 10
+
 ---
 apiVersion: v1
 kind: Service
@@ -65,6 +66,7 @@ spec:
   selector:
     app: customer-service
   ports:
-  - port: 8080
-    targetPort: 8080
+  - protocol: TCP
+    port: 5007
+    targetPort: 5007
   type: ClusterIP

@@ -37,6 +37,7 @@ spec:
             port: 5173
           initialDelaySeconds: 10
           periodSeconds: 10
+
 ---
 apiVersion: v1
 kind: Service
@@ -47,6 +48,7 @@ spec:
   selector:
     app: energy-company-client
   ports:
-  - port: 5173
+  - protocol: TCP
+    port: 5173
     targetPort: 5173
   type: ClusterIP

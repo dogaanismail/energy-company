@@ -27,13 +27,13 @@ spec:
             cpu: "500m"
         livenessProbe:
           httpGet:
-            path: /
+            path: /actuator/health
             port: 8761
           initialDelaySeconds: 60
           periodSeconds: 30
         readinessProbe:
           httpGet:
-            path: /
+            path: /actuator/health
             port: 8761
           initialDelaySeconds: 30
           periodSeconds: 10
@@ -47,6 +47,7 @@ spec:
   selector:
     app: eureka-server
   ports:
-  - port: 8761
+  - protocol: TCP
+    port: 8761
     targetPort: 8761
   type: ClusterIP
