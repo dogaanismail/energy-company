@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eureka-server-config
+  namespace: energy-company-dev
+data:
+  EUREKA_INSTANCE_HOSTNAME: "eureka-server"
+

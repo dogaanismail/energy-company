@@ -1,0 +1,16 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: energy-company-client
+build:
+  artifacts:
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-energy-company-client-dev
+      docker:
+        dockerfile: Dockerfile
+  tagPolicy:
+    gitCommit: {}
+manifests:
+  rawYaml:
+    - ../k8s/privileges.yaml
+    - k8s/**.yaml
+

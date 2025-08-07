@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-service
+  namespace: energy-company-dev
+  labels:
+    app: authentication-service
+spec:
+  selector:
+    app: authentication-service
+  ports:
+  - protocol: TCP
+    port: 2000
+    targetPort: 2000
+  type: ClusterIP
+

@@ -1,0 +1,69 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: energy-company-microservices
+build:
+  artifacts:
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-api-gateway-dev
+      jib:
+        project: api-gateway
+        args:
+          - -DskipTests
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-authentication-service-dev
+      jib:
+        project: authentication-service
+        args:
+          - -DskipTests
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-consumption-service-dev
+      jib:
+        project: consumption/consumption-service
+        args:
+          - -DskipTests
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-consumption-service-db-migration-dev
+      jib:
+        project: consumption/consumption-service-db-migration
+        args:
+          - -DskipTests
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-customer-service-dev
+      jib:
+        project: customer/customer-service
+        args:
+          - -DskipTests
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-customer-service-db-migration-dev
+      jib:
+        project: customer/customer-service-db-migration
+        args:
+          - -DskipTests
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-elering-adapter-dev
+      jib:
+        project: elering-adapter
+        args:
+          - -DskipTests
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-eureka-server-dev
+      jib:
+        project: eureka-server
+        args:
+          - -DskipTests
+    - image: 480241654156.dkr.ecr.us-east-1.amazonaws.com/energy-company-energy-company-client-dev
+      docker:
+        dockerfile: energy-company-client/Dockerfile
+        buildContext: energy-company-client
+  tagPolicy:
+    gitCommit: {}
+manifests:
+  rawYaml:
+    - k8s/namespace.yaml
+    - k8s/privileges.yaml
+    - k8s/ingress.yaml
+    - api-gateway/k8s/*.yaml
+    - authentication-service/k8s/*.yaml
+    - consumption/consumption-service/k8s/*.yaml
+    - consumption/consumption-service-db-migration/k8s/*.yaml
+    - customer/customer-service/k8s/*.yaml
+    - customer/customer-service-db-migration/k8s/*.yaml
+    - elering-adapter/k8s/*.yaml
+    - eureka-server/k8s/*.yaml
+    - energy-company-client/k8s/*.yaml
+deploy:
+  kubectl: {}
+
