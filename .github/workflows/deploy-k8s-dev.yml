@@ -234,12 +234,13 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
 
-    - name: Build Java service
+    - name: Build backend service
       if: matrix.service != 'energy-company-client'
       run: |
-        cd ${{ steps.service-path.outputs.path }}
         chmod +x ./gradlew
-        ./gradlew build -x test
+        PROJECT_PATH=":${{ matrix.service }}"
+        echo "Building specific project: $PROJECT_PATH"
+        ./gradlew "$PROJECT_PATH:build" -x test
 
     - name: Build React client
       if: matrix.service == 'energy-company-client'
