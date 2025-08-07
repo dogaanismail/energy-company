@@ -4,6 +4,5 @@ metadata:
   name: eureka-server-config
   namespace: energy-company-dev
 data:
-  SPRING_PROFILES_ACTIVE: "kubernetes"
   EUREKA_INSTANCE_HOSTNAME: "eureka-server"
 

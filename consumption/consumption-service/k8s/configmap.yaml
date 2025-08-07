@@ -5,5 +5,4 @@ metadata:
   namespace: energy-company-dev
 data:
   EUREKA_SERVICE_URL: "http://eureka-server:8761/eureka/"
-  SPRING_PROFILES_ACTIVE: "kubernetes"
 
