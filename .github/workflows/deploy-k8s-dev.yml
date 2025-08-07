@@ -229,16 +229,38 @@ jobs:
 
     - name: Deploy to Kubernetes
       run: |
-        # Deploy the service
-        kubectl apply -f k8s/${{ matrix.service }}.yaml
+        MANIFEST_PATH="k8s/${{ matrix.service }}.yaml"
+        IMAGE_URL="$ECR_REGISTRY/energy-company-${{ matrix.service }}-dev:${{ github.sha }}"
+
+        # Check if the resource is a Job and update its image tag in the manifest
+        # The "|| true" prevents the script from failing if the file doesn't contain the word "Job"
+        if grep -q "kind: Job" "$MANIFEST_PATH"; then
+          echo "Resource is a Job. Updating image tag in manifest file before applying."
+          # Use sed to replace the image URL. Note the use of a different delimiter (#) for sed
+          # because the IMAGE_URL contains slashes (/).
+          sed -i "s#image: .*#image: $IMAGE_URL#g" "$MANIFEST_PATH"
+        fi
+
+        echo "Applying manifest: $MANIFEST_PATH"
+        kubectl apply -f "$MANIFEST_PATH"
+
+        # Check the resource kind again to run post-apply commands
+        RESOURCE_KIND=$(kubectl get -f "$MANIFEST_PATH" -o jsonpath='{.kind}')
         
-        # Update image in Kubernetes deployment
-        kubectl set image deployment/${{ matrix.service }} \
-          ${{ matrix.service }}=$ECR_REGISTRY/energy-company-${{ matrix.service }}-dev:${{ github.sha }} \
-          -n energy-company-dev
+        if [[ "$RESOURCE_KIND" == "Deployment" ]]; then
+          echo "Updating Deployment image..."
+          kubectl set image deployment/${{ matrix.service }} \
+            ${{ matrix.service }}=$IMAGE_URL \
+            -n energy-company-dev
         
-        # Wait for rollout to complete
-        kubectl rollout status deployment/${{ matrix.service }} -n energy-company-dev
+          echo "Waiting for rollout to complete..."
+          kubectl rollout status deployment/${{ matrix.service }} -n energy-company-dev --timeout=5m
+        
+        elif [[ "$RESOURCE_KIND" == "Job" ]]; then
+          echo "Waiting for Job to complete..."
+          # We wait for the job we just applied to finish its work.
+          kubectl wait --for=condition=complete job/${{ matrix.service }} -n energy-company-dev --timeout=5m
+        fi
         
         echo "✅ ${{ matrix.service }} deployed successfully to Kubernetes!"
 
