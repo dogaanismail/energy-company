@@ -234,8 +234,16 @@ jobs:
           
           RESOURCE_KIND=$(kubectl get -f "$MANIFEST_PATH" -o jsonpath='{.kind}' || echo "NotFound")
           
+          # ✅ ADD THIS BLOCK TO HANDLE MULTI-DOCUMENT YAML FILES
+          if [[ "$RESOURCE_KIND" == "List" ]]; then
+            echo "Multi-document file detected. Assuming 'Deployment' is the primary resource."
+            # We re-assign the variable so the next 'if' block catches it.
+            RESOURCE_KIND="Deployment"
+          fi
+          
           if [[ "$RESOURCE_KIND" == "Deployment" ]]; then
             echo "Applying manifest for Deployment..."
+            # This command works fine with multi-document files.
             kubectl apply -f "$MANIFEST_PATH"
           
             echo "Updating Deployment image..."
@@ -250,7 +258,6 @@ jobs:
             echo "Resource is a Job. Replacing image and re-creating."
             sed -i "s#image: .*#image: $IMAGE_URL#g" "$MANIFEST_PATH"
           
-            # ✅ ADD THIS LINE TO DELETE THE OLD JOB
             kubectl delete job ${{ matrix.service }} -n energy-company-dev --ignore-not-found=true
           
             echo "Applying new Job manifest..."
