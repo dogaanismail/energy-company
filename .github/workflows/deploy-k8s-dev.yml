@@ -231,23 +231,13 @@ jobs:
       run: |
         MANIFEST_PATH="k8s/${{ matrix.service }}.yaml"
         IMAGE_URL="$ECR_REGISTRY/energy-company-${{ matrix.service }}-dev:${{ github.sha }}"
-
-        # Check if the resource is a Job and update its image tag in the manifest
-        # The "|| true" prevents the script from failing if the file doesn't contain the word "Job"
-        if grep -q "kind: Job" "$MANIFEST_PATH"; then
-          echo "Resource is a Job. Updating image tag in manifest file before applying."
-          # Use sed to replace the image URL. Note the use of a different delimiter (#) for sed
-          # because the IMAGE_URL contains slashes (/).
-          sed -i "s#image: .*#image: $IMAGE_URL#g" "$MANIFEST_PATH"
-        fi
-
-        echo "Applying manifest: $MANIFEST_PATH"
-        kubectl apply -f "$MANIFEST_PATH"
-
-        # Check the resource kind again to run post-apply commands
-        RESOURCE_KIND=$(kubectl get -f "$MANIFEST_PATH" -o jsonpath='{.kind}')
+        
+        RESOURCE_KIND=$(kubectl get -f "$MANIFEST_PATH" -o jsonpath='{.kind}' || echo "NotFound")
         
         if [[ "$RESOURCE_KIND" == "Deployment" ]]; then
+          echo "Applying manifest for Deployment..."
+          kubectl apply -f "$MANIFEST_PATH"
+        
           echo "Updating Deployment image..."
           kubectl set image deployment/${{ matrix.service }} \
             ${{ matrix.service }}=$IMAGE_URL \
@@ -257,13 +247,27 @@ jobs:
           kubectl rollout status deployment/${{ matrix.service }} -n energy-company-dev --timeout=5m
         
         elif [[ "$RESOURCE_KIND" == "Job" ]]; then
+          echo "Resource is a Job. Replacing image and re-creating."
+          sed -i "s#image: .*#image: $IMAGE_URL#g" "$MANIFEST_PATH"
+        
+          # ✅ ADD THIS LINE TO DELETE THE OLD JOB
+          kubectl delete job ${{ matrix.service }} -n energy-company-dev --ignore-not-found=true
+        
+          echo "Applying new Job manifest..."
+          kubectl apply -f "$MANIFEST_PATH"
+        
           echo "Waiting for Job to complete..."
-          # We wait for the job we just applied to finish its work.
           kubectl wait --for=condition=complete job/${{ matrix.service }} -n energy-company-dev --timeout=5m
+        
+        elif [[ "$RESOURCE_KIND" == "NotFound" ]]; then
+            echo "Manifest file not found at $MANIFEST_PATH"
+            exit 1
+        else
+            echo "Unsupported resource kind '$RESOURCE_KIND' for this workflow."
+            exit 1
         fi
         
         echo "✅ ${{ matrix.service }} deployed successfully to Kubernetes!"
-
 
 
   notify-deployment:
