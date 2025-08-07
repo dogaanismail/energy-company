@@ -136,11 +136,16 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Build backend service
+    - name: Build Java service
       if: matrix.service != 'energy-company-client'
       run: |
+        # 1. Make the wrapper executable from the root directory
         chmod +x ./gradlew
-        ./gradlew clean build -x test --no-daemon
+        
+        # 2. Run the build from the root, targeting the specific service
+        # The :service-name:build syntax tells Gradle which sub-project to build.
+        echo "Building service: ${{ matrix.service }}"
+        ./gradlew :${{ matrix.service }}:build -x test
 
     - name: Build frontend
       if: matrix.service == 'energy-company-client'
