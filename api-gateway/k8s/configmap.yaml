@@ -4,5 +4,5 @@ metadata:
   name: api-gateway-config
   namespace: energy-company-dev
 data:
-  EUREKA_SERVICE_URL: "http://eureka-server:8761/eureka/"
+  EUREKA_SERVICE_URL: "http://eureka-server.energy-company-dev.svc.cluster.local:8761/eureka/"
 
